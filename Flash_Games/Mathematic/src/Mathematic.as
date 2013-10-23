@@ -2,7 +2,10 @@ package
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
+	[SWF(width="800",height="600")]
 	public class Mathematic extends Sprite
 	{
 		
@@ -17,6 +20,7 @@ package
 		private var seconds:int;
 		private var minutes:int;
 		private var showTuto:Boolean;
+		private var tutorialTimer:Timer;
 		
 		public function Mathematic()
 		{
@@ -44,15 +48,17 @@ package
 				minutes++;
 			}
 			
-			if(showTuto){
-				trace(seconds);
+			/*if(showTuto){
 				if(seconds % 5 == 0){
 					hideTutorial()
 				}
-			}
+				if(seconds >= 5){
+					hideTutorial();
+				}
+			}*/
 		}
 		
-		private function showTutorial():void
+		private function showTutorial(event:TimerEvent = null):void
 		{
 			tutorialAsset = new TutorialAsset();
 			this.addChild(tutorialAsset);
@@ -61,8 +67,8 @@ package
 			
 			var tutoNum1:int = Math.floor(Math.random() * 100);
 			var tutoNum2:int = Math.floor(Math.random() * 100);
-			trace(arrayOfOperators[Math.floor(Math.random()*4)]);
 			var tutoOperator:String = arrayOfOperators[Math.floor(Math.random()*4)];
+			trace(tutoOperator);
 			var tutoResult:int;
 			switch(tutoOperator)
 			{
@@ -92,15 +98,25 @@ package
 			tutorialAsset.operator.text = String(tutoOperator);
 			tutorialAsset.resp.text = String(tutoResult);
 			showTuto = true;
+			tutorialTimer = new Timer(3000);
+			tutorialTimer.addEventListener(TimerEvent.TIMER, hideTutorial);
+			tutorialTimer.start();
 		}
 		
-		private function hideTutorial():void
+		private function hideTutorial(event:TimerEvent = null):void
 		{
+			if(tutorialTimer){
+				tutorialTimer.stop();
+				tutorialTimer.removeEventListener(TimerEvent.TIMER, hideTutorial);
+				tutorialTimer = null;
+			}
 			if(showTuto){
 				showTuto = false;
 				this.removeChild(tutorialAsset);
 				tutorialAsset = null;
-				showTutorial();
+				tutorialTimer = new Timer(3000);
+				tutorialTimer.addEventListener(TimerEvent.TIMER, showTutorial);
+				tutorialTimer.start();
 			}
 		}
 	}
