@@ -109,6 +109,7 @@ package
 				}
 			}
 			return result;
+			
 		}
 		
 		private function completeCloseTutorial():void
