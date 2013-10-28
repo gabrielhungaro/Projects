@@ -2,8 +2,10 @@ package
 {
 	import com.greensock.TweenLite;
 	
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	
 	[SWF(width="800",height="600")]
 	public class Mathematic extends Sprite
@@ -11,7 +13,7 @@ package
 		
 		private var tutorialAsset:TutorialAsset;
 		private var questionAsset:QuestionAsset;
-		private var ballonAsset:NumBallonAsset;
+		private var balloonAsset:NumBallonAsset;
 		private var backgroundAsset:BackgroundAsset;
 		private var operator:String;
 		private var num1:Number;
@@ -23,10 +25,20 @@ package
 		private var minutes:int;
 		private var showTuto:Boolean;
 		private var numberOfTutorials:int = 0;
-		private var numberMaxOfTutorials:int = 3;
+		private var numberMaxOfTutorials:int = 1;
 		private var timeBetweenTutorials:Number = 2;
 		private var timer:TimerAsset;
 		private var paused:Boolean = true;
+		private var chanceInLevel:int = 6;
+		private var balloonSpeed:int = 5;
+		private var timeBetweenBalloons:int = 24;
+		private var arrayOfBalloons:Array;
+		private var correctAnswer:Boolean;
+		private var lifes:int = 3;
+		private var level:int;
+		private var levelMax:int;
+		private var loseScreen:LoseScreenAsset;
+		private var winScreen:WinScreenAsset;
 		
 		public function Mathematic()
 		{
@@ -57,7 +69,208 @@ package
 					timer.minutes.text = String(minutes);
 					timer.seconds.text = String(seconds);
 				}
+				if((ticks % timeBetweenBalloons) == 0){
+					createBalloon();
+				}
+				moveBalloons();
 			}
+		}
+		
+		private function createBalloon():void
+		{
+			balloonAsset = new NumBallonAsset();
+			balloonAsset.x = Math.random() * (backgroundAsset.width-balloonAsset.width) + balloonAsset.width/2;
+			balloonAsset.y = backgroundAsset.height + balloonAsset.height;
+			var chanceOfCorrectNumber:int = Math.floor(Math.random()*10);
+			var balloonNumber:Number;
+			if(chanceOfCorrectNumber > chanceInLevel){
+				balloonNumber = result;
+			}else{
+				balloonNumber = Math.floor(Math.random()*10000);
+			}
+			balloonAsset.num.text = String(balloonNumber);
+			balloonAsset.num.mouseEnabled = false;
+			this.addChild(balloonAsset);
+			arrayOfBalloons.push(balloonAsset);
+			balloonAsset.buttonMode = true;
+			balloonAsset.addEventListener(MouseEvent.CLICK, onClickBalloon);
+			balloonAsset.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			balloonAsset.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+		}
+		
+		protected function onClickBalloon(event:MouseEvent):void
+		{
+			for (var i:int = 0; i < arrayOfBalloons.length; i++) 
+			{
+				if(arrayOfBalloons[i].name == event.currentTarget.name){
+					arrayOfBalloons.splice(i, 1);
+				}
+			}
+			destroyBalloon(event.currentTarget as MovieClip);
+			if(event.currentTarget.num.text == String(result)){
+				correctAnswer = true;
+				paused = true;
+				for (var j:int = 0; j < arrayOfBalloons.length; j++) 
+				{
+					destroyBalloon(arrayOfBalloons[j]);
+					TweenLite.delayedCall(1, destroyQuestion);
+				}
+				nextLevel();
+			}else{
+				correctAnswer = false;
+				resetLevel();
+			}
+		}
+		
+		private function resetLevel():void
+		{
+			lifes--;
+			if(lifes < 0){
+				paused = true;
+				for (var j:int = 0; j < arrayOfBalloons.length; j++) 
+				{
+					destroyBalloon(arrayOfBalloons[j]);
+					TweenLite.delayedCall(1, destroyQuestion);
+				}
+			}
+		}
+		
+		private function nextLevel():void
+		{
+			level++;
+			chanceInLevel++;
+			balloonSpeed++;
+		}
+		
+		private function destroyQuestion():void
+		{
+			TweenLite.to(questionAsset, .2, {scaleX:1.2, scaleY:1.2});
+			TweenLite.to(questionAsset, .5, {scaleX:0, scaleY:0, alpha:0, delay:.5, onComplete:completeDestroyQuestion});
+		}
+		
+		private function completeDestroyQuestion():void
+		{
+			this.removeEventListener(Event.ENTER_FRAME, update);
+			if(lifes < 0){
+				showLoseScreen();
+			}else if(level >= levelMax){
+				showWinScreen();
+			}else{
+				initGame();
+			}
+		}
+		
+		private function showWinScreen():void
+		{
+			winScreen = new WinScreenAsset();
+			this.addChild(winScreen);
+			winScreen.btnExit.buttonMode = true;
+			winScreen.btnExit.addEventListener(MouseEvent.CLICK, onClickExit);
+			winScreen.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			winScreen.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			winScreen.btnPlayAgain.buttonMode = true;
+			winScreen.btnPlayAgain.addEventListener(MouseEvent.CLICK, onClickPlayAgain);
+			winScreen.btnPlayAgain.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			winScreen.btnPlayAgain.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			winScreen.minutes.text = String(minutes);
+			winScreen.seconds.text = String(seconds);
+			winScreen.x = backgroundAsset.width/2;
+			winScreen.y = backgroundAsset.height/2;
+		}
+		
+		private function showLoseScreen():void
+		{
+			loseScreen = new LoseScreenAsset();
+			this.addChild(loseScreen);
+			loseScreen.btnExit.buttonMode = true;
+			loseScreen.btnExit.addEventListener(MouseEvent.CLICK, onClickExit);
+			loseScreen.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			loseScreen.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			loseScreen.btnPlayAgain.buttonMode = true;
+			loseScreen.btnPlayAgain.addEventListener(MouseEvent.CLICK, onClickPlayAgain);
+			loseScreen.btnPlayAgain.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			loseScreen.btnPlayAgain.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			loseScreen.x = backgroundAsset.width/2;
+			loseScreen.y = backgroundAsset.height/2;
+		}
+		
+		protected function onClickPlayAgain(event:MouseEvent):void
+		{
+			resetGame();
+		}
+		
+		private function resetGame():void
+		{
+			lifes = 3;
+			chanceInLevel = 6;
+			balloonSpeed = 5;
+			timeBetweenBalloons = 24;
+			ticks = 0;
+			seconds = 0;
+			minutes = 0;
+			removeLoseScreen();
+			removeWinScreen();
+			initGame();
+		}
+		
+		private function removeWinScreen():void
+		{
+			if(winScreen){
+				if(this.contains(winScreen)){
+					this.removeChild(winScreen);
+					winScreen = null;
+				}
+			}
+		}
+		
+		private function removeLoseScreen():void
+		{
+			if(loseScreen){
+				if(this.contains(loseScreen)){
+					this.removeChild(loseScreen);
+					loseScreen = null;
+				}
+			}
+		}
+		
+		protected function onClickExit(event:MouseEvent):void
+		{
+			// TODO Auto-generated method stub
+			
+		}
+		
+		protected function onMouseOver(event:MouseEvent):void
+		{
+			event.currentTarget.scaleX = event.currentTarget.scaleY += .1; 
+		}
+		
+		protected function onMouseOut(event:MouseEvent):void
+		{
+			event.currentTarget.scaleX = event.currentTarget.scaleY -= .1; 
+		}
+		
+		private function moveBalloons():void
+		{
+			for (var i:int = 0; i < arrayOfBalloons.length; i++) 
+			{
+				arrayOfBalloons[i].y -= balloonSpeed;
+				if(arrayOfBalloons[i].y <= (-arrayOfBalloons[i].height)){
+					this.removeChild(arrayOfBalloons[i]);
+					arrayOfBalloons.splice(i, 1);
+				}
+			}
+		}
+		
+		private function destroyBalloon(balloon:MovieClip):void
+		{
+			TweenLite.to(balloon, .2, {scaleX:1.2, scaleY:1.2});
+			TweenLite.to(balloon, .5, {scaleX:0, scaleY:0, alpha:0, delay:.5, onComplete:completeDestroyBalloon, onCompleteParams:[balloon]});
+		}
+		
+		private function completeDestroyBalloon(balloon:MovieClip):void
+		{
+			this.removeChild(balloon);
+			balloon = null;
 		}
 		
 		private function showTutorial():void
@@ -84,7 +297,6 @@ package
 			num1 = Math.floor(Math.random() * 100);
 			num2 = Math.floor(Math.random() * 100);
 			operator = arrayOfOperators[Math.floor(Math.random()*4)];
-			trace(operator);
 			switch(operator)
 			{
 				case "+":
@@ -108,13 +320,15 @@ package
 					break;
 				}
 			}
+			trace("CALC " + num1 + " " + operator + " " + num2);
+			result = Math.floor(result);
+			trace("RESULT " + result);
 			return result;
-			
 		}
 		
 		private function completeCloseTutorial():void
 		{
-			hideTutorial()
+			hideTutorial();
 		}
 		
 		private function hideTutorial():void
@@ -130,6 +344,7 @@ package
 		
 		private function initGame():void
 		{
+			arrayOfBalloons = new Array();
 			showQuestion();
 			showTimer();
 			this.addEventListener(Event.ENTER_FRAME, update);
@@ -141,8 +356,21 @@ package
 			this.addChild(questionAsset);
 			questionAsset.x = backgroundAsset.width/2;
 			questionAsset.y = backgroundAsset.height/2;
+			var assetHeight:Number = questionAsset.height;
 			questionAsset.scaleX = questionAsset.scaleY = 0;
-			TweenLite.to(questionAsset, .5, {scaleX:1, scaleY:1, onComplete:completeShowQuestion});
+			TweenLite.to(questionAsset, .5, {scaleX:.8, scaleY:.8});
+			TweenLite.to(questionAsset, .5, {y:assetHeight/2 + 10, scaleX:1, scaleY:1, delay: 3, onComplete:completeShowQuestion});
+			calcOperation();
+			updateQuestionValue();
+		}
+		
+		private function updateQuestionValue():void
+		{
+			if(questionAsset){
+				questionAsset.num1.text = String(num1);
+				questionAsset.num2.text = String(num2);
+				questionAsset.operator.text = String(operator);
+			}
 		}
 		
 		private function showTimer():void
