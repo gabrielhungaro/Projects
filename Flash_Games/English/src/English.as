@@ -35,6 +35,7 @@ package
 		private var rounds:int;
 		private var score:ScoreAsset;
 		private var finishScreen:FinishScreenAsset;
+		private var background:BackgroundAsset;
 		public function English()
 		{
 			init();
@@ -42,6 +43,8 @@ package
 		
 		private function init():void
 		{
+			background = new BackgroundAsset();
+			this.addChild(background);
 			rounds = 0;
 			corrects = 0;
 			wrongs = 0;
@@ -71,7 +74,7 @@ package
 				arrayOfImages[i].addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				
 				animalName = new AnimalNameAsset();
-				animalName.x = stage.stageWidth - (animalName.width+20);
+				animalName.x = background.width - (animalName.width+20);
 				animalName.y = 5 * (i+1) + animalName.height * i;
 				animalName.animalName.text = arrayOfRandonNames[i];
 				animalName.name = arrayOfRandonNames[i];
@@ -86,7 +89,7 @@ package
 		private function addScore():void
 		{
 			score = new ScoreAsset();
-			score.x = stage.stageWidth/2 - score.width/2;
+			score.x = background.width/2 - score.width/2;
 			score.y = 15;
 			this.addChild(score);
 			updateScore();

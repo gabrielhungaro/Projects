@@ -24,7 +24,7 @@ package
 		private var seconds:int;
 		private var minutes:int;
 		private var showTuto:Boolean;
-		private var numberOfTutorials:int = 0;
+		private var numberOfTutorials:int = 3;
 		private var numberMaxOfTutorials:int = 1;
 		private var timeBetweenTutorials:Number = 2;
 		private var timer:TimerAsset;
@@ -162,6 +162,7 @@ package
 		
 		private function showWinScreen():void
 		{
+			resetValues();
 			winScreen = new WinScreenAsset();
 			this.addChild(winScreen);
 			winScreen.btnExit.buttonMode = true;
@@ -180,6 +181,7 @@ package
 		
 		private function showLoseScreen():void
 		{
+			resetValues();
 			loseScreen = new LoseScreenAsset();
 			this.addChild(loseScreen);
 			loseScreen.btnExit.buttonMode = true;
@@ -201,6 +203,14 @@ package
 		
 		private function resetGame():void
 		{
+			resetValues();
+			removeLoseScreen();
+			removeWinScreen();
+			initGame();
+		}
+		
+		private function resetValues():void
+		{
 			lifes = 3;
 			chanceInLevel = 6;
 			balloonSpeed = 5;
@@ -208,9 +218,6 @@ package
 			ticks = 0;
 			seconds = 0;
 			minutes = 0;
-			removeLoseScreen();
-			removeWinScreen();
-			initGame();
 		}
 		
 		private function removeWinScreen():void
