@@ -9,17 +9,15 @@ package
 	public class English extends Sprite
 	{
 		private var dog:DogAsset;
-		private var cat:CatAsset;
+		private var bird:BirdAsset;
 		private var horse:HorseAsset;
-		private var shark:SharkAsset;
-		private var fish:FishAsset;
-		private var rat:RatAsset;
+		private var chicken:ChickenAsset;
+		private var pig:PigAsset;
 		private var sheep:SheepAsset;
-		private var wolf:WolfAsset;
-		private var whale:WhaleAsset;
-		private var turtle:TurtleAsset;
+		private var cow:CowAsset;
 		private var animalName:AnimalNameAsset;
-		private var arrayOfNamesOriginal:Array = ["dog", "cat", "horse", "rat", "fish", "shark", "sheep", "turtle", "wolf", "whale"];
+		private var arrayOfConstNames:Array = ["dog", "bird", "horse", "cow", "pig", "sheep", "chicken"];
+		private var arrayOfNamesOriginal:Array;
 		private var arrayOfRandonNames:Array;
 		private var arrayOfImagesClass:Vector.<Class>;
 		private var arrayOfImages:Array;
@@ -34,8 +32,8 @@ package
 		private var corrects:int;
 		private var rounds:int;
 		private var score:ScoreAsset;
-		private var finishScreen:FinishScreenAsset;
-		private var background:BackgroundAsset;
+		private var finishScreen:EnglishFinishScreenAsset;
+		private var background:EnglishBackgroundAsset;
 		public function English()
 		{
 			init();
@@ -43,7 +41,7 @@ package
 		
 		private function init():void
 		{
-			background = new BackgroundAsset();
+			background = new EnglishBackgroundAsset();
 			this.addChild(background);
 			rounds = 0;
 			corrects = 0;
@@ -51,7 +49,7 @@ package
 			resetArrayOfNamesOriginal();
 			arrayOfImages = new Array();
 			arrayOfImagesClass = new Vector.<Class>();
-			arrayOfImagesClass.push(DogAsset, CatAsset, HorseAsset, SharkAsset, FishAsset, RatAsset, SheepAsset, WolfAsset, WhaleAsset, TurtleAsset);
+			arrayOfImagesClass.push(DogAsset, PigAsset, HorseAsset, CowAsset, ChickenAsset, BirdAsset, SheepAsset);
 			
 			arrayOfRandonNames = new Array();
 			arrayOfRandonImages = new Array();
@@ -66,16 +64,23 @@ package
 			{
 				arrayOfImages.push(new arrayOfImagesClass[i]());
 				this.addChild(arrayOfImages[i]);
-				arrayOfImages[i].x = 20;
-				arrayOfImages[i].y = 5 * (i+1) + arrayOfImages[i].height * i;
+				arrayOfImages[i].scaleX = arrayOfImages[i].scaleY = .45;
+				arrayOfImages[i].x = 10 + arrayOfImages[i].width/2;
+				//arrayOfImages[i].y = arrayOfImages[i].height/2 * (i+1) + arrayOfImages[i].height * i + arrayOfImages[i].height/2;
+				trace("altura" + arrayOfImages[i].height);
+				if(i > 0){
+					arrayOfImages[i].y =  arrayOfImages[i-1].y + arrayOfImages[i-1].height + 10;
+				}
+				trace("posicao" + arrayOfImages[i].y);
 				arrayOfImages[i].name = arrayOfImages[i].aninalName.text;
 				arrayOfImages[i].addEventListener(MouseEvent.CLICK, onClickImage);
 				arrayOfImages[i].addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 				arrayOfImages[i].addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				
 				animalName = new AnimalNameAsset();
+				animalName.scaleX = animalName.scaleY = .5;
 				animalName.x = background.width - (animalName.width+20);
-				animalName.y = 5 * (i+1) + animalName.height * i;
+				animalName.y = animalName.height/2 * (i+1) + animalName.height * i + animalName.height/2;
 				animalName.animalName.text = arrayOfRandonNames[i];
 				animalName.name = arrayOfRandonNames[i];
 				this.addChild(animalName);
@@ -181,13 +186,23 @@ package
 		
 		private function addFinishScreen():void
 		{
-			finishScreen = new FinishScreenAsset();
+			finishScreen = new EnglishFinishScreenAsset();
 			finishScreen.corrects.text = String(corrects);
 			finishScreen.wrongs.text = String(wrongs);
 			finishScreen.btnTryAgain.addEventListener(MouseEvent.CLICK, onClickTryAgain);
 			finishScreen.btnTryAgain.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			finishScreen.btnTryAgain.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			finishScreen.btnExit.buttonMode = true;
+			finishScreen.btnExit.addEventListener(MouseEvent.CLICK, onClickExit);
+			finishScreen.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			finishScreen.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 			this.addChild(finishScreen);
+		}
+		
+		protected function onClickExit(event:MouseEvent):void
+		{
+			// TODO Auto-generated method stub
+			
 		}
 		
 		protected function onClickTryAgain(event:MouseEvent):void
@@ -215,7 +230,7 @@ package
 		
 		private function resetArrayOfNamesOriginal():void
 		{
-			arrayOfNamesOriginal = ["dog", "cat", "horse", "rat", "fish", "shark", "sheep", "turtle", "wolf", "whale"];
+			arrayOfNamesOriginal = arrayOfConstNames.concat();
 		}
 		
 		private function fillArrayOfNames():void
