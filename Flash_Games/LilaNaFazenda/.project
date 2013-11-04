@@ -25,5 +25,15 @@
 			<type>2</type>
 			<location>C:/GitHub/GreenSock-AS3/src</location>
 		</link>
+		<link>
+			<name>[source path] Labirinty-src</name>
+			<type>2</type>
+			<location>C:/GitHub/Projects/Flash_Games/Labirinty/src</location>
+		</link>
+		<link>
+			<name>[source path] Mathematic-src</name>
+			<type>2</type>
+			<location>C:/GitHub/Projects/Flash_Games/Mathematic/src</location>
+		</link>
 	</linkedResources>
 </projectDescription>

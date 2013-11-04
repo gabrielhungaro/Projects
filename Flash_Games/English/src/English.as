@@ -34,6 +34,7 @@ package
 		private var score:ScoreAsset;
 		private var finishScreen:EnglishFinishScreenAsset;
 		private var background:EnglishBackgroundAsset;
+		private var onQuitFunction:Function;
 		public function English()
 		{
 			init();
@@ -64,22 +65,22 @@ package
 			{
 				arrayOfImages.push(new arrayOfImagesClass[i]());
 				this.addChild(arrayOfImages[i]);
-				arrayOfImages[i].scaleX = arrayOfImages[i].scaleY = .45;
 				arrayOfImages[i].x = 10 + arrayOfImages[i].width/2;
 				//arrayOfImages[i].y = arrayOfImages[i].height/2 * (i+1) + arrayOfImages[i].height * i + arrayOfImages[i].height/2;
-				trace("altura" + arrayOfImages[i].height);
 				if(i > 0){
-					arrayOfImages[i].y =  arrayOfImages[i-1].y + arrayOfImages[i-1].height + 10;
+					arrayOfImages[i].y = /*arrayOfImages[i-1].height/2 + */arrayOfImages[i-1].y + arrayOfImages[i-1].height;
+				}else{
+					arrayOfImages[i].y = arrayOfImages[i].height/2 + 10;
 				}
-				trace("posicao" + arrayOfImages[i].y);
 				arrayOfImages[i].name = arrayOfImages[i].aninalName.text;
+				arrayOfImages[i].aninalName.visible = false;
 				arrayOfImages[i].addEventListener(MouseEvent.CLICK, onClickImage);
 				arrayOfImages[i].addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 				arrayOfImages[i].addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				
 				animalName = new AnimalNameAsset();
 				animalName.scaleX = animalName.scaleY = .5;
-				animalName.x = background.width - (animalName.width+20);
+				animalName.x = background.width - (animalName.width/2 + 20);
 				animalName.y = animalName.height/2 * (i+1) + animalName.height * i + animalName.height/2;
 				animalName.animalName.text = arrayOfRandonNames[i];
 				animalName.name = arrayOfRandonNames[i];
@@ -97,6 +98,7 @@ package
 			score.x = background.width/2 - score.width/2;
 			score.y = 15;
 			this.addChild(score);
+			score.visible = false;
 			updateScore();
 		}
 		
@@ -109,6 +111,9 @@ package
 		protected function update(event:Event):void
 		{
 			if(connectionLine && drawConnection){
+				connectionLine.graphics.clear();
+				connectionLine.graphics.lineStyle(2, 0x990000, .75);
+				connectionLine.graphics.moveTo(imageChoose.x, imageChoose.y); 
 				connectionLine.graphics.lineTo(mouseX, mouseY);
 			}
 		}
@@ -123,7 +128,6 @@ package
 				connectionLine.mouseChildren = false;
 				connectionLine.graphics.lineStyle(2, 0x990000, .75);
 				connectionLine.graphics.moveTo(event.currentTarget.x, event.currentTarget.y); 
-				connectionLine.graphics.lineTo(mouseX, mouseY);
 				this.addChild(connectionLine);
 				isWithAnmalChoosed = true;
 			}else{
@@ -187,22 +191,13 @@ package
 		private function addFinishScreen():void
 		{
 			finishScreen = new EnglishFinishScreenAsset();
-			finishScreen.corrects.text = String(corrects);
-			finishScreen.wrongs.text = String(wrongs);
-			finishScreen.btnTryAgain.addEventListener(MouseEvent.CLICK, onClickTryAgain);
-			finishScreen.btnTryAgain.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			finishScreen.btnTryAgain.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-			finishScreen.btnExit.buttonMode = true;
-			finishScreen.btnExit.addEventListener(MouseEvent.CLICK, onClickExit);
-			finishScreen.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			finishScreen.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			finishScreen.addEventListener(MouseEvent.CLICK, onClickExit);
 			this.addChild(finishScreen);
 		}
 		
 		protected function onClickExit(event:MouseEvent):void
 		{
-			// TODO Auto-generated method stub
-			
+			destroy();
 		}
 		
 		protected function onClickTryAgain(event:MouseEvent):void
@@ -285,6 +280,19 @@ package
 			arrayOfNamesOriginal.splice(indexNumber, 1);
 			arrayOfRandonImages.push(randomName);
 			return;
+		}
+		
+		public function setOnQuitFunction(value:Function):void
+		{
+			onQuitFunction = value;
+		}
+		
+		public function destroy():void
+		{
+			while(this.numChildren > 0){
+				this.removeChild(this.getChildAt(0));
+			}
+			onQuitFunction();
 		}
 	}
 }

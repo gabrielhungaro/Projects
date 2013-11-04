@@ -14,7 +14,7 @@ package
 		private var tutorialAsset:TutorialAsset;
 		private var questionAsset:QuestionAsset;
 		private var balloonAsset:NumBallonAsset;
-		private var backgroundAsset:BackgroundAsset;
+		private var backgroundAsset:MathBackgroundAsset;
 		private var operator:String;
 		private var num1:Number;
 		private var num2:Number;
@@ -27,7 +27,7 @@ package
 		private var numberOfTutorials:int = 3;
 		private var numberMaxOfTutorials:int = 1;
 		private var timeBetweenTutorials:Number = 2;
-		private var timer:TimerAsset;
+		private var timer:MathTimerAsset;
 		private var paused:Boolean = true;
 		private var chanceInLevel:int = 6;
 		private var balloonSpeed:int = 5;
@@ -38,7 +38,8 @@ package
 		private var level:int;
 		private var levelMax:int;
 		private var loseScreen:LoseScreenAsset;
-		private var winScreen:WinScreenAsset;
+		private var winScreen:MathWinScreenAsset;
+		private var onQuitFunction:Function;
 		
 		public function Mathematic()
 		{
@@ -47,7 +48,7 @@ package
 		
 		public function init():void
 		{
-			backgroundAsset = new BackgroundAsset();
+			backgroundAsset = new MathBackgroundAsset();
 			this.addChild(backgroundAsset);
 			
 			showTutorial();
@@ -88,6 +89,8 @@ package
 			}else{
 				balloonNumber = Math.floor(Math.random()*10000);
 			}
+			var typeBalloon:int = Math.floor(Math.random()*4)+1;
+			balloonAsset.gotoAndStop(typeBalloon);
 			balloonAsset.num.text = String(balloonNumber);
 			balloonAsset.num.mouseEnabled = false;
 			this.addChild(balloonAsset);
@@ -163,20 +166,13 @@ package
 		private function showWinScreen():void
 		{
 			resetValues();
-			winScreen = new WinScreenAsset();
+			winScreen = new MathWinScreenAsset();
 			this.addChild(winScreen);
-			winScreen.btnExit.buttonMode = true;
-			winScreen.btnExit.addEventListener(MouseEvent.CLICK, onClickExit);
-			winScreen.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			winScreen.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-			winScreen.btnPlayAgain.buttonMode = true;
-			winScreen.btnPlayAgain.addEventListener(MouseEvent.CLICK, onClickPlayAgain);
-			winScreen.btnPlayAgain.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			winScreen.btnPlayAgain.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-			winScreen.minutes.text = String(minutes);
+			winScreen.addEventListener(MouseEvent.CLICK, onClickExit);
+			/*winScreen.minutes.text = String(minutes);
 			winScreen.seconds.text = String(seconds);
 			winScreen.x = backgroundAsset.width/2;
-			winScreen.y = backgroundAsset.height/2;
+			winScreen.y = backgroundAsset.height/2;*/
 		}
 		
 		private function showLoseScreen():void
@@ -242,8 +238,7 @@ package
 		
 		protected function onClickExit(event:MouseEvent):void
 		{
-			// TODO Auto-generated method stub
-			
+			destroy();
 		}
 		
 		protected function onMouseOver(event:MouseEvent):void
@@ -383,16 +378,30 @@ package
 		private function showTimer():void
 		{
 			if(!timer){
-				timer = new TimerAsset();
+				timer = new MathTimerAsset();
 				timer.x = 10;
 				timer.y = 10;
 				this.addChild(timer);
+				timer.visible = false;
 			}
 		}
 		
 		private function completeShowQuestion():void
 		{
 			paused = false;
+		}
+		
+		public function setOnQuitFunction(value:Function):void
+		{
+			onQuitFunction = value;
+		}
+		
+		public function destroy():void
+		{
+			while(this.numChildren > 0){
+				this.removeChild(this.getChildAt(0));
+			}
+			onQuitFunction();
 		}
 	}
 }
