@@ -296,8 +296,8 @@ package
 		
 		private function calcOperation():Number
 		{
-			num1 = Math.floor(Math.random() * 100);
-			num2 = Math.floor(Math.random() * 100);
+			num1 = Math.floor(Math.random() * 10);
+			num2 = Math.floor(Math.random() * 10);
 			operator = arrayOfOperators[Math.floor(Math.random()*4)];
 			switch(operator)
 			{
