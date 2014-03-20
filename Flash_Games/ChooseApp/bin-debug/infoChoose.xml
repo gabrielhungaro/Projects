@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chooseObjects>
+	<app name="MUSAS da COPA" startScreenImg="startScreenImg.jpg" />
+	<buttonImgs startButtonImg="startButtonImg.jpg" startButtonImgOver="startButtonOverImg.jpg"
+				shareButtonImg="shareButtonImg.jpg" shareButtonImgOver="shareButtonOverImg.jpg" 
+				playAgainButtonImg="playAgainButtonImg.jpg" playAgainButtonImgOver="playAgainButtonOverImg.jpg" 
+				photoUrlThumb1="photoThumb1.png" photoUrlThumb2="photoThumb2.png" 
+				photoUrlOver="photoThumbOver.png" vsUrl="vsImg.png"/>
+	<objects>
+		<object nome="Opção1">
+			<name>Shakira</name>
+			<info>Gerard Piqué</info>
+			<photoUrl>Shakira.jpg</photoUrl>
+		</object>
+		<object nome="Opção2">
+			<name>Irina Shayk</name>
+			<info>Cristiano Ronaldo</info>
+			<photoUrl>IrinaSayk.jpg</photoUrl>
+		</object>
+	</objects>
+</chooseObjects>
