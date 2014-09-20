@@ -1,5 +1,7 @@
 package
 {
+	import com.greensock.TweenLite;
+	
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.filters.BitmapFilterQuality;
@@ -14,6 +16,11 @@ package
 		private var mathGame:Mathematic;
 		private var labirintyGame:Labirinty;
 		private var creditsScreen:CreditsScreenAsset;
+		private var soundManager:SoundManager;
+		private var artScreen:ArtScreenAsset;
+		private var levelDesignScreen:LevelDesignScreenAsset;
+		private var optionsScreen:OptionsScreenAsset;
+		private var isMuted:Boolean = false;
 		
 		public function LilaNaFazenda()
 		{
@@ -22,6 +29,8 @@ package
 		
 		private function init():void
 		{
+			SoundManager.getInstance();
+			SoundManager.playInit();
 			mainMenu = new MainMenuAsset();
 			this.addChild(mainMenu);
 			mainMenu.btnPlay.buttonMode = true;
@@ -32,21 +41,98 @@ package
 			mainMenu.btnCredits.addEventListener(MouseEvent.CLICK, onClickCredits);
 			mainMenu.btnCredits.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			mainMenu.btnCredits.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			mainMenu.btnOptions.buttonMode = true;
+			mainMenu.btnOptions.addEventListener(MouseEvent.CLICK, onClickOptions);
+			mainMenu.btnOptions.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			mainMenu.btnOptions.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			
+			mainMenu.btnExit.visible = false;
+			mainMenu.btnExit.alpha = 0;
+			
+			TweenLite.to(mainMenu.bird1, 8, {scaleX:0, scaleY:0});
+			TweenLite.to(mainMenu.bird2, 15, {scaleX:0, scaleY:0});
 		}
 		
-		protected function onClickCredits(event:MouseEvent):void
+		protected function onClickCredits(event:MouseEvent = null):void
 		{
+			if(event != null){
+				SoundManager.stopAll();
+				SoundManager.playCredits();
+			}
 			creditsScreen = new CreditsScreenAsset();
 			this.addChild(creditsScreen);
 			creditsScreen.btnBack.buttonMode = true;
 			creditsScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickBack);
 			creditsScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			creditsScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			creditsScreen.btnArt.buttonMode = true;
+			creditsScreen.btnArt.addEventListener(MouseEvent.CLICK, onClickArt);
+			creditsScreen.btnArt.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			creditsScreen.btnArt.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+		}
+		
+		protected function onClickArt(event:MouseEvent):void
+		{
+			destroyCreditsScreen();
+			artScreen = new ArtScreenAsset();
+			this.addChild(artScreen);
+			artScreen.btnBack.buttonMode = true;
+			artScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickBack);
+			artScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			artScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			artScreen.btnLevel.buttonMode = true;
+			artScreen.btnLevel.addEventListener(MouseEvent.CLICK, onClickLevel);
+			artScreen.btnLevel.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			artScreen.btnLevel.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+		}
+		
+		protected function onClickLevel(event:MouseEvent):void
+		{
+			destroyArtScreen();
+			levelDesignScreen = new LevelDesignScreenAsset();
+			this.addChild(levelDesignScreen);
+			levelDesignScreen.btnBack.buttonMode = true;
+			levelDesignScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickBack);
+			levelDesignScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			levelDesignScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+		}
+		
+		private function destroyLevelScreen():void
+		{
+			if(levelDesignScreen){
+				if(this.contains(levelDesignScreen)){
+					levelDesignScreen.btnBack.removeEventListener(MouseEvent.CLICK, onClickBack);
+					levelDesignScreen.btnBack.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+					levelDesignScreen.btnBack.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+					this.removeChild(levelDesignScreen);
+					levelDesignScreen = null;
+				}
+			}
+		}
+		
+		private function destroyArtScreen():void
+		{
+			if(artScreen){
+				if(this.contains(artScreen)){
+					artScreen.btnBack.removeEventListener(MouseEvent.CLICK, onClickBack);
+					artScreen.btnBack.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+					artScreen.btnBack.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+					artScreen.btnLevel.removeEventListener(MouseEvent.CLICK, onClickLevel);
+					artScreen.btnLevel.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+					artScreen.btnLevel.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+					this.removeChild(artScreen);
+					artScreen = null;
+				}
+			}
 		}
 		
 		protected function onClickBack(event:MouseEvent):void
 		{
+			SoundManager.stopAll();
+			SoundManager.playInit();
 			destroyCreditsScreen();
+			destroyArtScreen();
+			destroyLevelScreen();
 		}
 		
 		private function destroyCreditsScreen():void
@@ -62,9 +148,9 @@ package
 			}
 		}
 		
-		protected function onClickPlay(event:MouseEvent):void
+		protected function onClickPlay(event:MouseEvent = null):void
 		{
-			removeMenu();
+			//removeMenu();
 			createGameSelector();
 		}
 		
@@ -96,29 +182,46 @@ package
 			selectGameScreen.btnLabirinto.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		}
 		
+		private function removeGameSelector():void
+		{
+			if(selectGameScreen){
+				if(this.contains(selectGameScreen)){
+					this.removeChild(selectGameScreen);
+					selectGameScreen = null;
+				}
+			}
+		}
+		
 		protected function onClickLabirinty(event:MouseEvent):void
 		{
-			labirintyGame = new Labirinty(stage);
+			removeGameSelector();
+			SoundManager.stopAll();
+			labirintyGame = new Labirinty(stage, isMuted);
 			labirintyGame.setOnQuitFunction(quitGame);
 			this.addChild(labirintyGame);
 		}
 		
 		protected function onClickMath(event:MouseEvent):void
 		{
-			mathGame = new Mathematic();
+			removeGameSelector();
+			SoundManager.stopAll();
+			mathGame = new Mathematic(isMuted);
 			mathGame.setOnQuitFunction(quitGame);
 			this.addChild(mathGame);
 		}
 		
 		protected function onClickEnglish(event:MouseEvent):void
 		{
-			englishGame = new English();
+			removeGameSelector();
+			SoundManager.stopAll();
+			englishGame = new English(isMuted);
 			englishGame.setOnQuitFunction(quitGame);
 			this.addChild(englishGame);
 		}
 		
-		private function quitGame():void
+		private function quitGame(goToGames:Boolean = false):void
 		{
+			SoundManager.playInit();
 			if(englishGame){
 				if(this.contains(englishGame)){
 					this.removeChild(englishGame);
@@ -137,6 +240,61 @@ package
 					labirintyGame = null;
 				}
 			}
+			if(goToGames){
+				onClickPlay();
+			}
+		}
+		
+		protected function onClickOptions(event:MouseEvent):void
+		{
+			optionsScreen = new OptionsScreenAsset();
+			this.addChild(optionsScreen);
+			optionsScreen.btnBack.buttonMode = true;
+			optionsScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickBackOptions);
+			optionsScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			optionsScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			optionsScreen.btnOn.buttonMode = true;
+			optionsScreen.btnOn.addEventListener(MouseEvent.CLICK, onClickSoundOn);
+			optionsScreen.btnOn.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			optionsScreen.btnOn.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			optionsScreen.btnOff.buttonMode = true;
+			optionsScreen.btnOff.addEventListener(MouseEvent.CLICK, onClickSoundOff);
+			optionsScreen.btnOff.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			optionsScreen.btnOff.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			
+			if(optionsScreen){
+				TweenLite.to(optionsScreen.bird1, 8, {scaleX:0, scaleY:0});
+				TweenLite.to(optionsScreen.bird2, 15, {scaleX:0, scaleY:0});
+			}
+		}
+		
+		protected function onClickBackOptions(event:MouseEvent):void
+		{
+			removeOptionsScreen();
+		}
+		
+		private function removeOptionsScreen():void
+		{
+			TweenLite.killTweensOf(optionsScreen.bird1);
+			TweenLite.killTweensOf(optionsScreen.bird2);
+			if(optionsScreen){
+				if(this.contains(optionsScreen)){
+					this.removeChild(optionsScreen);
+					optionsScreen = null;
+				}
+			}
+		}
+		
+		protected function onClickSoundOff(event:MouseEvent):void
+		{
+			isMuted = true;
+			SoundManager.setIsMuted(isMuted);
+		}
+		
+		protected function onClickSoundOn(event:MouseEvent):void
+		{
+			isMuted = false;
+			SoundManager.setIsMuted(isMuted);
 		}
 		
 		protected function onMouseOut(event:MouseEvent):void

@@ -6,12 +6,14 @@ package
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.filters.BitmapFilterQuality;
+	import flash.filters.GlowFilter;
 	
 	[SWF(width="800",height="600")]
 	public class Mathematic extends Sprite
 	{
 		
-		private var tutorialAsset:TutorialAsset;
+		private var tutorialAsset:TutorialAssetMath;
 		private var questionAsset:QuestionAsset;
 		private var balloonAsset:NumBallonAsset;
 		private var backgroundAsset:MathBackgroundAsset;
@@ -29,29 +31,78 @@ package
 		private var timeBetweenTutorials:Number = 2;
 		private var timer:MathTimerAsset;
 		private var paused:Boolean = true;
-		private var chanceInLevel:int = 6;
+		private var chanceInLevel:Number = 4;
 		private var balloonSpeed:int = 5;
 		private var timeBetweenBalloons:int = 24;
 		private var arrayOfBalloons:Array;
 		private var correctAnswer:Boolean;
 		private var lifes:int = 3;
 		private var level:int;
-		private var levelMax:int;
+		private var levelMax:int = 5;
 		private var loseScreen:LoseScreenAsset;
 		private var winScreen:MathWinScreenAsset;
 		private var onQuitFunction:Function;
+		private var score:ScoreAssetMath;
+		private var corrects:int;
+		private var wrongs:int;
+		private var initTutorial:InitTutorialAssetMath;
+		private var _isMuted:Boolean;
 		
-		public function Mathematic()
+		public function Mathematic(isMuted:Boolean = false)
 		{
+			_isMuted = isMuted;
+			SoundManagerMath.setIsMuted(isMuted);
 			init();
 		}
 		
 		public function init():void
 		{
+			SoundManagerMath.getInstance();
+			SoundManagerMath.playByName(SoundManagerMath.BACKGROUND);
 			backgroundAsset = new MathBackgroundAsset();
 			this.addChild(backgroundAsset);
 			
+			addInitTutorial();
+			
+		}
+		
+		private function addInitTutorial():void
+		{
+			initTutorial = new InitTutorialAssetMath();
+			initTutorial.x = backgroundAsset.width/2;
+			initTutorial.y = backgroundAsset.height/2;
+			this.addChild(initTutorial);
+			initTutorial.scaleX = initTutorial.scaleY = 0;
+			TweenLite.to(initTutorial, .5, {scaleX:1, scaleY:1});
+			TweenLite.to(initTutorial, .5, {scaleX:0, scaleY:0, delay:8, onComplete:completeHideInitTutorial});
+		}
+		
+		private function completeHideInitTutorial():void
+		{
+			if(initTutorial){
+				if(this.contains(initTutorial)){
+					this.removeChild(initTutorial);
+					initTutorial = null;
+				}
+			}
 			showTutorial();
+			//this.addEventListener(Event.ENTER_FRAME, update);
+		}
+		
+		private function addScore():void
+		{
+			score = new ScoreAssetMath();
+			score.x = backgroundAsset.width - (score.width/2 + 10);
+			score.y = score.height/2+10;
+			score.scaleX = score.scaleY = .8;
+			this.addChild(score);
+			updateScore();
+		}
+		
+		private function updateScore():void
+		{
+			score.corrects.text = String(corrects);
+			score.wrongs.text = String(wrongs);
 		}
 		
 		protected function update(event:Event):void
@@ -87,7 +138,7 @@ package
 			if(chanceOfCorrectNumber > chanceInLevel){
 				balloonNumber = result;
 			}else{
-				balloonNumber = Math.floor(Math.random()*10000);
+				balloonNumber = Math.floor(Math.random()*100);
 			}
 			var typeBalloon:int = Math.floor(Math.random()*4)+1;
 			balloonAsset.gotoAndStop(typeBalloon);
@@ -112,15 +163,19 @@ package
 			destroyBalloon(event.currentTarget as MovieClip);
 			if(event.currentTarget.num.text == String(result)){
 				correctAnswer = true;
+				corrects++;
 				paused = true;
 				for (var j:int = 0; j < arrayOfBalloons.length; j++) 
 				{
 					destroyBalloon(arrayOfBalloons[j]);
 					TweenLite.delayedCall(1, destroyQuestion);
 				}
+				updateScore();
 				nextLevel();
 			}else{
+				wrongs++;
 				correctAnswer = false;
+				updateScore();
 				resetLevel();
 			}
 		}
@@ -141,7 +196,7 @@ package
 		private function nextLevel():void
 		{
 			level++;
-			chanceInLevel++;
+			chanceInLevel += .5;
 			balloonSpeed++;
 		}
 		
@@ -168,11 +223,46 @@ package
 			resetValues();
 			winScreen = new MathWinScreenAsset();
 			this.addChild(winScreen);
-			winScreen.addEventListener(MouseEvent.CLICK, onClickExit);
+			winScreen.btnGames.addEventListener(MouseEvent.CLICK, onClickGames);
+			winScreen.btnGames.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+			winScreen.btnGames.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+			winScreen.btnGames.buttonMode = true;
+			winScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickExit);
+			winScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+			winScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+			winScreen.btnBack.buttonMode = true;
 			/*winScreen.minutes.text = String(minutes);
 			winScreen.seconds.text = String(seconds);
 			winScreen.x = backgroundAsset.width/2;
 			winScreen.y = backgroundAsset.height/2;*/
+		}
+		
+		protected function onMouseOut2(event:MouseEvent):void
+		{var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0x009922; 
+			glow.alpha = 1; 
+			glow.blurX = 0; 
+			glow.blurY = 0; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY -= .1; 
+		}
+		
+		protected function onMouseOver2(event:MouseEvent):void
+		{
+			var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0xffffff; 
+			glow.alpha = 1; 
+			glow.blurX = 25; 
+			glow.blurY = 25; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY += .1; 
+		}
+		
+		protected function onClickGames(event:MouseEvent):void
+		{
+			destroy(true);
 		}
 		
 		private function showLoseScreen():void
@@ -278,7 +368,7 @@ package
 		private function showTutorial():void
 		{
 			numberOfTutorials++;
-			tutorialAsset = new TutorialAsset();
+			tutorialAsset = new TutorialAssetMath();
 			this.addChild(tutorialAsset);
 			tutorialAsset.x = backgroundAsset.width/2;
 			tutorialAsset.y = backgroundAsset.height/2;
@@ -349,6 +439,7 @@ package
 			arrayOfBalloons = new Array();
 			showQuestion();
 			showTimer();
+			addScore();
 			this.addEventListener(Event.ENTER_FRAME, update);
 		}
 		
@@ -396,12 +487,13 @@ package
 			onQuitFunction = value;
 		}
 		
-		public function destroy():void
+		public function destroy(goToGames:Boolean = false):void
 		{
+			SoundManagerMath.stopAll();
 			while(this.numChildren > 0){
 				this.removeChild(this.getChildAt(0));
 			}
-			onQuitFunction();
+			onQuitFunction(goToGames);
 		}
 	}
 }

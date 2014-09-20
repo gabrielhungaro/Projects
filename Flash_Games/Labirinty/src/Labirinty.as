@@ -1,11 +1,15 @@
 package
 {
+	import com.greensock.TweenLite;
+	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.filters.BitmapFilterQuality;
+	import flash.filters.GlowFilter;
 	import flash.ui.Keyboard;
 	
 	[SWF(width="800",height="600")]
@@ -23,14 +27,26 @@ package
 		private var isDown:Boolean;
 		private var speed:int = 5;
 		private var arrayOfWalls:Array;
-		private var background:BackgroundAsset;
+		private var background:BackgroundAssetLabirinty;
 		private var canMove:Boolean = true;;
 		private var finishScreen:LabirintyFinishScreenAsset;
 		private var onQuitFunction:Function;
 		private var _stage:Stage;
+		private var bubbleAsset:BubbleAsset;
+		private var arrayOfBubbles:Array;
+		private var ticks:int;
+		private var seconds:int;
+		private var minutes:int;
+		private var timer:LabirintyTimerAsset;
+		private var timeBetweenBubbles:int = 62;
+		private var bubbleSpeed:int = 2;
+		private var initTutorial:TutorialAsset;
+		private var _isMuted:Boolean;
 		
-		public function Labirinty(aStage:Stage = null)
+		public function Labirinty(aStage:Stage = null, isMuted:Boolean = false)
 		{
+			_isMuted = isMuted;
+			SoundManagerLabirinty.setIsMuted(isMuted);
 			if(aStage){
 				_stage = aStage;
 			}else{
@@ -41,13 +57,42 @@ package
 		
 		private function initGame():void
 		{
+			SoundManagerLabirinty.getInstance();
+			SoundManagerLabirinty.playByName(SoundManagerLabirinty.BACKGROUND);
 			arrayOfLabirinties = new Array();
+			arrayOfBubbles = new Array();
 			arrayOfWalls = new Array();
-			background = new BackgroundAsset();
+			background = new BackgroundAssetLabirinty();
 			this.addChild(background);
 			fillArrayOfLabirinties();
+			showTimer();
 			createLabirinty();
 			createHero();
+			
+			addInitTutorial();
+			
+			
+		}
+		
+		private function addInitTutorial():void
+		{
+			initTutorial = new TutorialAsset();
+			initTutorial.x = background.width/2;
+			initTutorial.y = background.height/2;
+			this.addChild(initTutorial);
+			initTutorial.scaleX = initTutorial.scaleY = 0;
+			TweenLite.to(initTutorial, .5, {scaleX:1, scaleY:1});
+			TweenLite.to(initTutorial, .5, {scaleX:0, scaleY:0, delay:8, onComplete:completeHideInitTutorial});
+		}
+		
+		private function completeHideInitTutorial():void
+		{
+			if(initTutorial){
+				if(this.contains(initTutorial)){
+					this.removeChild(initTutorial);
+					initTutorial = null;
+				}
+			}
 			this.addEventListener(Event.ENTER_FRAME, update);
 		}
 		
@@ -63,7 +108,7 @@ package
 			activeLabirinty = arrayOfLabirinties[randomLabirinty];
 			this.addChild(activeLabirinty);
 			activeLabirinty.x = 5;
-			activeLabirinty.y = 10;
+			activeLabirinty.y = timer.y + timer.height + 10;
 			for (var i:int = 0; i < activeLabirinty.numChildren; i++) 
 			{
 				if(activeLabirinty.getChildAt(i) is StartPointAsset){
@@ -97,6 +142,52 @@ package
 			}
 		}
 		
+		private function createBubble():void
+		{
+			bubbleAsset = new BubbleAsset();
+			bubbleAsset.x = Math.random() * (background.width-bubbleAsset.width) + bubbleAsset.width/2;
+			bubbleAsset.y = background.height + bubbleAsset.height;
+			var bubbleSize:int = Math.floor(Math.random()*10);
+			bubbleAsset.scaleX = bubbleAsset.scaleY = bubbleSize/10;
+			this.addChild(bubbleAsset);
+			arrayOfBubbles.push(bubbleAsset);
+		}
+		
+		private function moveBubbles():void
+		{
+			for (var i:int = 0; i < arrayOfBubbles.length; i++) 
+			{
+				arrayOfBubbles[i].y -= bubbleSpeed;
+				if(arrayOfBubbles[i].y <= (-arrayOfBubbles[i].height)){
+					this.removeChild(arrayOfBubbles[i]);
+					arrayOfBubbles.splice(i, 1);
+				}
+			}
+		}
+		
+		private function destroyBalloon(balloon:MovieClip):void
+		{
+			TweenLite.to(balloon, .2, {scaleX:1.2, scaleY:1.2});
+			TweenLite.to(balloon, .5, {scaleX:0, scaleY:0, alpha:0, delay:.5, onComplete:completeDestroyBubble, onCompleteParams:[balloon]});
+		}
+		
+		private function completeDestroyBubble(balloon:MovieClip):void
+		{
+			this.removeChild(balloon);
+			balloon = null;
+		}
+		
+		private function showTimer():void
+		{
+			if(!timer){
+				timer = new LabirintyTimerAsset();
+				timer.x = background.width - (timer.width+10);
+				timer.y = 10;
+				this.addChild(timer);
+				timer.visible = true;
+			}
+		}
+		
 		protected function onKeyDown(event:KeyboardEvent):void
 		{
 			if(event.keyCode == Keyboard.LEFT){
@@ -111,13 +202,13 @@ package
 			}
 			if(event.keyCode == Keyboard.UP){
 				isUp = true;
-				hero.image.rotation = -90;
-				hero.image.scaleX = 1;
+				//hero.image.rotation = -90;
+				//hero.image.scaleX = 1;
 			}
 			if(event.keyCode == Keyboard.DOWN){
 				isDown = true;
-				hero.image.rotation = 90;
-				hero.image.scaleX = 1;
+				//hero.image.rotation = 90;
+				//hero.image.scaleX = 1;
 			}
 		}
 		
@@ -141,6 +232,33 @@ package
 		{
 			moveHero();
 			verifyCollision();
+			ticks++;
+			if(ticks >= 24){
+				ticks = 0;
+				seconds++;
+			}
+			if(seconds >= 60){
+				seconds = 0;
+				minutes++;
+			}
+			if(timer){
+				if(minutes < 10){
+					var minutesStr:String = "0"+String(minutes);
+				}else{
+					var minutesStr:String = String(minutes);
+				}
+				if(seconds < 10){
+					var secondsStr:String = "0"+String(seconds);
+				}else{
+					var secondsStr:String = String(seconds);
+				}
+				timer.minutes.text = String(minutesStr);
+				timer.seconds.text = String(secondsStr);
+			}
+			if(((ticks + seconds*24) % timeBetweenBubbles) == 0){
+				createBubble();
+			}
+			moveBubbles();
 		}
 		
 		private function moveHero():void
@@ -196,8 +314,43 @@ package
 			_stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			
 			finishScreen = new LabirintyFinishScreenAsset();
-			finishScreen.addEventListener(MouseEvent.CLICK, onClickExit);
+			finishScreen.btnGames.addEventListener(MouseEvent.CLICK, onClickGames);
+			finishScreen.btnGames.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+			finishScreen.btnGames.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+			finishScreen.btnGames.buttonMode = true;
+			finishScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickExit);
+			finishScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+			finishScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+			finishScreen.btnBack.buttonMode = true;
 			this.addChild(finishScreen);
+		}
+		
+		protected function onMouseOut2(event:MouseEvent):void
+		{var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0x009922; 
+			glow.alpha = 1; 
+			glow.blurX = 0; 
+			glow.blurY = 0; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY -= .1; 
+		}
+		
+		protected function onMouseOver2(event:MouseEvent):void
+		{
+			var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0xffffff; 
+			glow.alpha = 1; 
+			glow.blurX = 25; 
+			glow.blurY = 25; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY += .1; 
+		}
+		
+		protected function onClickGames(event:MouseEvent):void
+		{
+			destroy(true);
 		}
 		
 		protected function onClickExit(event:MouseEvent):void
@@ -217,14 +370,27 @@ package
 			initGame();
 		}
 		
-		protected function onMouseOver(event:MouseEvent):void
-		{
-			event.currentTarget.scaleX = event.currentTarget.scaleY += .1; 
+		protected function onMouseOut(event:MouseEvent):void
+		{var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0x009922; 
+			glow.alpha = 1; 
+			glow.blurX = 0; 
+			glow.blurY = 0; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY -= .1; 
 		}
 		
-		protected function onMouseOut(event:MouseEvent):void
+		protected function onMouseOver(event:MouseEvent):void
 		{
-			event.currentTarget.scaleX = event.currentTarget.scaleY -= .1; 
+			var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0xffffff; 
+			glow.alpha = 1; 
+			glow.blurX = 25; 
+			glow.blurY = 25; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY += .1; 
 		}
 		
 		public function setOnQuitFunction(value:Function):void
@@ -250,14 +416,15 @@ package
 			}
 		}
 		
-		private function destroy():void
+		private function destroy(goToGames:Boolean = false):void
 		{
+			SoundManagerLabirinty.stopAll();
 			this.removeEventListener(Event.ENTER_FRAME, update);
 			_stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			_stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			destroyObjects();
 			
-			onQuitFunction();
+			onQuitFunction(goToGames);
 		}
 		
 		private function destroyHero():void

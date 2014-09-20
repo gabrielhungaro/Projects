@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data><!--The quiz type can be Quiz or Poll-->
+	<quiz name="Teste" type="Quiz" startScreenImg="startScreenImg.jpg" questionScreenImg="questionScreenImg.jpg" rankingScreenImg="rankingScreenImg.jpg"/>
+	<buttonImgs startButtonImg="startButtonImg.jpg" startButtonOverImg="startButtonOverImg.jpg"
+				shareButtonImg="shareButtonImg.jpg" shareButtonOverImg="shareButtonOverImg.jpg" 
+				playAgainButtonImg="playAgainButtonImg.jpg" playAgainButtonOverImg="playAgainButtonOverImg.jpg" 
+				alternativeButtonImg="alternativeButtonImg.jpg" alternativeButtonOverImg="alternativeButtonOverImg.jpg" 
+				alternativeButtonCorrectImg="alternativeButtonCorrectImg.jpg" alternativeButtonWrongImg="alternativeButtonWrongImg.jpg"/>
+	<questions questionsToAnswer="2">
+		<question number="1"	question="O que é poliomielite?"/>
+		<question number="2"	question="Como combatê-la?"/>
+		<question number="3"	question="Por qual outro nome ela também é conhecida?"/>
+		<question number="4"	question="Qual é o grupo prioritário?"/>
+		<question number="5"	question="Quem é o embaixador da saúde?"/>
+		<question number="6"	question="Onde você pode se vacinar?"/>
+		<question number="7"	question="Não é uma forma de transmissão da Polio..."/>
+	</questions>	
+	
+	<alternatives>
+		<question number="1"	correctAnswer="C">
+			<alternative answer="Um remédio"/>
+			<alternative answer="Uma cidade"/>
+			<alternative answer="Uma doença"/>
+			<alternative answer="Um instrumento"/>
+		</question>
+				
+		<question number="2"	correctAnswer="A">
+			<alternative answer="Vacina"/>
+			<alternative answer="Repouso"/>
+			<alternative answer="Remédio"/>
+			<alternative answer="Bolsa de água quente"/> 
+		</question>
+				
+		<question number="3"	correctAnswer="B">
+			<alternative answer="Sarampo"/>
+			<alternative answer="Paralisia infantil"/>
+			<alternative answer="Catapora"/>
+			<alternative answer="Rubéola"/> 
+		</question>
+				
+		<question number="4"	correctAnswer="A">
+			<alternative answer="Crianças até 5 anos"/>
+			<alternative answer="Adultos de 20 a 30 anos"/>
+			<alternative answer="Idosos"/>
+			<alternative answer="Profissionais da saúde"/> 
+		</question>
+				
+		<question number="5"	correctAnswer="B">
+			<alternative answer="Emília"/>
+			<alternative answer="Zé Gotinha"/>
+			<alternative answer="Dona Benta"/>
+			<alternative answer="Visconde"/> 
+		</question>
+				
+		<question number="6"	correctAnswer="C">
+			<alternative answer="Na escola"/>
+			<alternative answer="No shopping"/>
+			<alternative answer="No posto de saúde"/>
+			<alternative answer="Na prefeitura"/> 
+		</question>
+		
+		<question number="7"	correctAnswer="D">
+			<alternative answer="De pessoa para pessoa"/>
+			<alternative answer="Por água e fezes contaminadas"/>
+			<alternative answer="De pessoa para pessoa e em água e fezes contaminadas"/>
+			<alternative answer="Através das vias aéreas"/> 
+		</question>
+		
+		<results>
+			<result>Brasil</result>
+			<result>Alemanha</result>
+			<result>EUA</result>
+			<result>Inglaterra</result>
+			<result>Espanha</result>
+			<result>Italia</result>
+			<result>Argentina</result>
+			<result>Holanda</result>
+		</results>
+	</alternatives>
+</data>

@@ -1,9 +1,13 @@
 package
 {
+	import com.greensock.TweenLite;
+	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.filters.BitmapFilterQuality;
+	import flash.filters.GlowFilter;
 	
 	[SWF(width="800", height="600")]
 	public class English extends Sprite
@@ -31,17 +35,24 @@ package
 		private var wrongs:int;
 		private var corrects:int;
 		private var rounds:int;
-		private var score:ScoreAsset;
+		private var score:ScoreAssetEnglish;
 		private var finishScreen:EnglishFinishScreenAsset;
 		private var background:EnglishBackgroundAsset;
 		private var onQuitFunction:Function;
-		public function English()
+		private var animalSound:EnglishBtnSound;
+		private var gameOverScreen:EnglishGameOverScreen;
+		private var initTutorial:InitTutorialAssetEnglish;
+		private var _isMuted:Boolean;
+		public function English(isMuted:Boolean = false)
 		{
+			_isMuted = isMuted;
+			SoundManagerEnglish.setIsMuted(isMuted);
 			init();
 		}
 		
 		private function init():void
 		{
+			SoundManagerEnglish.getInstance();
 			background = new EnglishBackgroundAsset();
 			this.addChild(background);
 			rounds = 0;
@@ -80,25 +91,62 @@ package
 				
 				animalName = new AnimalNameAsset();
 				animalName.scaleX = animalName.scaleY = .5;
-				animalName.x = background.width - (animalName.width/2 + 20);
+				animalName.x = background.width - (animalName.width/2 + 50);
 				animalName.y = animalName.height/2 * (i+1) + animalName.height * i + animalName.height/2;
 				animalName.animalName.text = arrayOfRandonNames[i];
 				animalName.name = arrayOfRandonNames[i];
 				this.addChild(animalName);
 				animalName.addEventListener(MouseEvent.CLICK, onClickName);
-				animalName.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-				animalName.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+				/*animalName.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+				animalName.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);*/
+				
+				animalSound = new EnglishBtnSound();
+				animalSound.name = animalName.name;
+				animalSound.scaleX = animalSound.scaleY = .5;
+				animalSound.x = animalName.x + animalName.width/2 + (animalSound.width/2+10);
+				animalSound.y = animalName.y
+				this.addChild(animalSound);
+				animalSound.addEventListener(MouseEvent.CLICK, onClickSound);
+				animalSound.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+				animalSound.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			}
+			
+			addInitTutorial();
+		}
+		
+		private function addInitTutorial():void
+		{
+			initTutorial = new InitTutorialAssetEnglish();
+			initTutorial.x = background.width/2;
+			initTutorial.y = background.height/2;
+			this.addChild(initTutorial);
+			initTutorial.scaleX = initTutorial.scaleY = 0;
+			TweenLite.to(initTutorial, .5, {scaleX:1, scaleY:1});
+			TweenLite.to(initTutorial, .5, {scaleX:0, scaleY:0, delay:8, onComplete:completeHideInitTutorial});
+		}
+		
+		private function completeHideInitTutorial():void
+		{
+			if(initTutorial){
+				if(this.contains(initTutorial)){
+					this.removeChild(initTutorial);
+					initTutorial = null;
+				}
 			}
 			this.addEventListener(Event.ENTER_FRAME, update);
 		}
 		
+		protected function onClickSound(event:MouseEvent):void
+		{
+			SoundManagerEnglish.playByName(event.currentTarget.name);
+		}
+		
 		private function addScore():void
 		{
-			score = new ScoreAsset();
-			score.x = background.width/2 - score.width/2;
-			score.y = 15;
+			score = new ScoreAssetEnglish();
+			score.x = background.width/2;
+			score.y = background.height - score.height+10;
 			this.addChild(score);
-			score.visible = false;
 			updateScore();
 		}
 		
@@ -139,7 +187,7 @@ package
 		protected function onClickName(event:MouseEvent):void
 		{
 			animalChoose = event.currentTarget as MovieClip;
-			if(!isWithAnmalChoosed){
+			/*if(!isWithAnmalChoosed){
 				connectionLine = new Sprite();
 				connectionLine.mouseEnabled = false;
 				connectionLine.mouseChildren = false;
@@ -148,10 +196,10 @@ package
 				connectionLine.graphics.lineTo(mouseX, mouseY);
 				this.addChild(connectionLine);
 				isWithAnmalChoosed = true;
-			}else{
+			}else{*/
 				drawConnection = false;
 				verifyChoosedAnimals();
-			}
+			//}
 		}
 		
 		protected function onMouseOver(event:MouseEvent):void
@@ -166,33 +214,86 @@ package
 		
 		private function verifyChoosedAnimals():void
 		{
-			rounds++;
-			isWithAnmalChoosed = false;
-			if(animalChoose.name == imageChoose.name){
-				animalChoose.alpha = .5;
-				animalChoose.removeEventListener(MouseEvent.CLICK, onClickName);
-				animalChoose.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-				animalChoose.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-				imageChoose.alpha = .5;
-				imageChoose.removeEventListener(MouseEvent.CLICK, onClickImage);
-				imageChoose.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-				imageChoose.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-				corrects++;
-			}else{
-				wrongs++;
-			}
-			updateScore();
-			removeConnectionLine();
-			if(rounds >= numberOfNames){
-				addFinishScreen();
+			if(isWithAnmalChoosed){
+				rounds++;
+				isWithAnmalChoosed = false;
+				if(animalChoose.name == imageChoose.name){
+					animalChoose.alpha = .5;
+					animalChoose.removeEventListener(MouseEvent.CLICK, onClickName);
+					animalChoose.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+					animalChoose.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+					imageChoose.alpha = .5;
+					imageChoose.removeEventListener(MouseEvent.CLICK, onClickImage);
+					imageChoose.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+					imageChoose.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+					corrects++;
+					SoundManagerEnglish.playByName(SoundManagerEnglish.CORRECT);
+				}else{
+					wrongs++;
+					SoundManagerEnglish.playByName(SoundManagerEnglish.WRONG);
+				}
+				updateScore();
+				removeConnectionLine();
+				if(wrongs >= 5 || corrects >= numberOfNames){
+					addFinishScreen();
+				}
 			}
 		}
 		
 		private function addFinishScreen():void
 		{
-			finishScreen = new EnglishFinishScreenAsset();
-			finishScreen.addEventListener(MouseEvent.CLICK, onClickExit);
-			this.addChild(finishScreen);
+			if(corrects > wrongs){
+				finishScreen = new EnglishFinishScreenAsset();
+				finishScreen.btnGames.addEventListener(MouseEvent.CLICK, onClickGames);
+				finishScreen.btnGames.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+				finishScreen.btnGames.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+				finishScreen.btnGames.buttonMode = true;
+				finishScreen.btnBack.addEventListener(MouseEvent.CLICK, onClickExit);
+				finishScreen.btnBack.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+				finishScreen.btnBack.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+				finishScreen.btnBack.buttonMode = true;
+				this.addChild(finishScreen);
+			}else{
+				gameOverScreen = new EnglishGameOverScreen();
+				gameOverScreen.btnExit.addEventListener(MouseEvent.CLICK, onClickExit);
+				gameOverScreen.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+				gameOverScreen.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+				gameOverScreen.btnExit.buttonMode = true;
+				gameOverScreen.btnExit.buttonMode = true;
+				gameOverScreen.btnTryAgain.addEventListener(MouseEvent.CLICK, onClickTryAgain);
+				gameOverScreen.btnTryAgain.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver2);
+				gameOverScreen.btnTryAgain.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut2);
+				gameOverScreen.btnTryAgain.buttonMode = true;
+				this.addChild(gameOverScreen);
+			}
+		}
+		
+		protected function onMouseOut2(event:MouseEvent):void
+		{var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0x009922; 
+			glow.alpha = 1; 
+			glow.blurX = 0; 
+			glow.blurY = 0; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY -= .1; 
+		}
+		
+		protected function onMouseOver2(event:MouseEvent):void
+		{
+			var glow:GlowFilter = new GlowFilter(); 
+			glow.color = 0xffffff; 
+			glow.alpha = 1; 
+			glow.blurX = 25; 
+			glow.blurY = 25; 
+			glow.quality = BitmapFilterQuality.MEDIUM;
+			Sprite(event.currentTarget).filters = [glow];
+			//event.currentTarget.scaleX = event.currentTarget.scaleY += .1; 
+		}
+		
+		protected function onClickGames(event:MouseEvent):void
+		{
+			destroy(true);
 		}
 		
 		protected function onClickExit(event:MouseEvent):void
@@ -205,6 +306,13 @@ package
 			if(finishScreen){
 				if(this.contains(finishScreen)){
 					this.removeChild(finishScreen);
+					finishScreen = null;
+				}
+			}
+			if(gameOverScreen){
+				if(this.contains(gameOverScreen)){
+					this.removeChild(gameOverScreen);
+					gameOverScreen = null;
 				}
 			}
 			while(this.numChildren > 0){
@@ -287,12 +395,12 @@ package
 			onQuitFunction = value;
 		}
 		
-		public function destroy():void
+		public function destroy(goToGames:Boolean = false):void
 		{
 			while(this.numChildren > 0){
 				this.removeChild(this.getChildAt(0));
 			}
-			onQuitFunction();
+			onQuitFunction(goToGames);
 		}
 	}
 }
