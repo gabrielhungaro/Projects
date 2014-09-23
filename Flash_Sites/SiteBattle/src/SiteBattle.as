@@ -1,5 +1,12 @@
 package
 {
+	import com.greensock.TweenLite;
+	import com.greensock.TweenMax;
+	import com.greensock.easing.Cubic;
+	import com.greensock.plugins.ColorMatrixFilterPlugin;
+	import com.greensock.plugins.EndArrayPlugin;
+	import com.greensock.plugins.TweenPlugin;
+	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
@@ -33,6 +40,7 @@ package
 		private var RULES:String = "rules";
 		private var SEND_MOVIE:String = "sendMovie";
 		
+		TweenPlugin.activate([ColorMatrixFilterPlugin, EndArrayPlugin]);
 		public function SiteBattle()
 		{
 			createContainers();
@@ -78,6 +86,10 @@ package
 			_galery.name = GALERY;
 			_galery.visible = false;
 			_pageContainer.addChild(_galery);
+			_galery.movieThumb.addEventListener(MouseEvent.CLICK, goRankingGalery);
+			_galery.movieThumb.addEventListener(MouseEvent.MOUSE_OVER, onMouseOverHighlight);
+			_galery.movieThumb.addEventListener(MouseEvent.MOUSE_OUT, onMouseOutHighlight);
+			_galery.movieThumb.buttonMode = true;
 			_listOfPages.push(_galery);
 			
 			_myMoview = new MyMovies();
@@ -96,18 +108,20 @@ package
 			_register.name = REGISTER;
 			_register.visible = false;
 			_pageContainer.addChild(_register);
+			_register.btnRegister.addEventListener(MouseEvent.CLICK, goSendMovie);
+			_register.btnRegister.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			_register.btnRegister.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			_register.btnRegister.buttonMode = true;
 			_listOfPages.push(_register);
-			
-			_rules = new Rules();
-			_rules.name = RULES;
-			_rules.visible = false;
-			_pageContainer.addChild(_rules);
-			_listOfPages.push(_rules);
 			
 			_sendYouMovie = new SendYouMovie();
 			_sendYouMovie.name = SEND_MOVIE;
 			_sendYouMovie.visible = false;
 			_pageContainer.addChild(_sendYouMovie);
+			_sendYouMovie.btnSend.addEventListener(MouseEvent.CLICK, goMyMovie);
+			_sendYouMovie.btnSend.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			_sendYouMovie.btnSend.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			_sendYouMovie.btnSend.buttonMode = true;
 			_listOfPages.push(_sendYouMovie);
 		}
 		
@@ -143,7 +157,7 @@ package
 			_footer = new Footer();
 			_headerContainer.addChild(_footer);
 			_footer.y = _actualPage.height;
-			_footer.btnRules.addEventListener(MouseEvent.CLICK, goRules);
+			_footer.btnRules.addEventListener(MouseEvent.CLICK, openRules);
 			_footer.btnRules.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			_footer.btnRules.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 			_footer.btnRules.buttonMode = true;
@@ -162,6 +176,20 @@ package
 		protected function onMouseOver(event:MouseEvent):void
 		{
 			event.currentTarget.scaleX = event.currentTarget.scaleY += .1;
+		}
+		
+		protected function onMouseOutHighlight(event:MouseEvent):void
+		{
+			TweenMax.to(event.currentTarget, 0.1, { colorTransform: { tint:0xffffff, exposure:1 }} );
+			//TweenMax.to(event.currentTarget, .5, {colorMatrixFilter:{colorize:0x000000, amount:0}, repeat:-1, yoyo:true, ease:Cubic.easeInOut} );
+			//TweenLite.to(event.currentTarget, {});
+		}
+		
+		protected function onMouseOverHighlight(event:MouseEvent):void
+		{
+			TweenMax.to(event.currentTarget, 0.1, { colorTransform: { tint:0xffffff, exposure:1.1 }} );
+			//TweenMax.to(event.currentTarget, .5, {colorMatrixFilter:{colorize:0xFFFFFF, amount:1, alpha:.5}, yoyo:true, ease:Cubic.easeInOut} );
+			//event.currentTarget.scaleX = event.currentTarget.scaleY += .1;
 		}
 		
 		private function goHome(event:MouseEvent = null):void
@@ -199,9 +227,36 @@ package
 			changePage(SEND_MOVIE);
 		}
 		
-		private function goRules(event:MouseEvent = null):void
+		private function openRules(event:MouseEvent = null):void
 		{
-			changePage(RULES);
+			if(_rules == null){
+				trace("vou abir");
+				_rules = new Rules();
+				this.addChild(_rules);
+				_rules.btnExit.addEventListener(MouseEvent.CLICK, closeRules);
+				_rules.btnExit.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+				_rules.btnExit.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+				_rules.btnExit.buttonMode = true;
+				_rules.alpha = 0;
+				_rules.scaleX = _rules.scaleY = 0;
+				_rules.x = _pageContainer.width/2;
+				_rules.y = _pageContainer.height/2;
+				TweenLite.to(_rules, .5, {alpha:1, scaleX:1, scaleY:1});
+			}
+		}
+		
+		private function closeRules(event:MouseEvent):void
+		{
+			if(_rules != null && _rules.alpha == 1){
+				TweenLite.to(_rules, .5, {alpha:0, scaleX:0, scaleY:0, onComplete:completeCloseRules});
+				
+			}
+		}
+		
+		private function completeCloseRules():void
+		{
+			this.removeChild(_rules);
+			_rules = null;
 		}
 		
 		private function goMyMovie(event:MouseEvent = null):void
