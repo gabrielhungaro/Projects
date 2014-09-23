@@ -14,19 +14,22 @@ package
 		public function ExpandBannerSiteBattle()
 		{
 			_banner = new Banner();
+			_banner.name = "_banner";
 			this.addChild(_banner);
 			_banner.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			_banner.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 			
 			for(var i:int = 0; i < _numberOfPhotos; i++){
 				_banner["olho" + String(i+1)].addEventListener(MouseEvent.CLICK, onClick);
+				_banner["olho" + String(i+1)].mouseChildren = false;
 				_banner["olho" + String(i+1)].buttonMode = true;
 			}
 		}
 		
 		protected function onMouseOut(event:MouseEvent):void
 		{
-			TweenLite.to(_banner._mask, .5, {scaleY:1});
+			if(event.target.name == "_banner")
+				TweenLite.to(_banner._mask, .5, {scaleY:1});
 		}
 		
 		protected function onMouseOver(event:MouseEvent):void
