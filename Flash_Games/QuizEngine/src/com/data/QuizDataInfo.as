@@ -1,7 +1,5 @@
 package com.data
 {
-	import com.globo.sitio.engine.debug.Debug;
-	
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
@@ -14,11 +12,14 @@ package com.data
 		private static var instance:QuizDataInfo = null;
 		private static var okToCreate:Boolean = true;
 		
-		private var urlXML:String = "quizInfos.xml";
+		private var quizInfo:String = "quizInfos.xml";
+		private var testInfo:String = "testInfos.xml";
+		
+		private var urlXML:String = testInfo;
 		private var xmlRequest:URLRequest;
 		private var xmlLoader:URLLoader;
-		private const TYPE_QUIZ:String = "quiz";
-		private const TYPE_POLL:String = "poll";
+		public const TYPE_QUIZ:String = "quiz";
+		public const TYPE_POLL:String = "poll";
 		
 		private var _appHeight:int;
 		private var _appWidth:int;
@@ -30,23 +31,92 @@ package com.data
 		private var _numberOfQuestionsToAnswer:int;
 		private var _numberOfCorrectAnswers:int;
 		private var _numberOfWrongAnswers:int;
-		private var _arrayOfResults:Array;
+		private var _arrayOfResults:Vector.<Result>;
+		private var _arrayOfAlternatives:Vector.<Alternative>;
 		private var _numberOfResults:int;
+		private var _arrayOfChooseds:Array;
+		private var _questionActualNumber:int;
 		
 		private var _urlStartScreen:String;
 		private var _urlQuestionScreen:String;
 		private var _urlRankingScreen:String;
+		
+		private var _urlNavigator:String;
+		private var _urlNavigatorIndicator:String;
+		private var _urlNavigatorIndicatorActual:String;
+		private var _navigatorType:String;
+		private var _navigatorXPos:int;
+		private var _navigatorYPos:int;
+		private var _navigatorFont:String;
+		private var _navigatorFontSize:int;
+		private var _navigatorFontColor:uint;
+		
+		private var _questionXPos:int;
+		private var _questionYPos:int;
+		private var _questionFont:String;
+		private var _questionSize:int;
+		private var _questionColor:uint;
+		
+		private var _questionNumberXPos:int;
+		private var _questionNumberYPos:int;
+		private var _questionNumberPrefix:String;
+		private var _questionNumberFont:String;
+		private var _questionNumberSize:int;
+		private var _questionNumberColor:uint;
+		
 		private var _urlStartButton:String;
 		private var _urlStartButtonOver:String;
-		private var _urlPlayAgainButton:String;
-		private var _urlPlayAgainButtonOver:String;
-		private var _urlShareButton:String;
-		private var _urlShareButtonOver:String;
+		private var _startButtonWidth:int;
+		private var _startButtonHeight:int;
+		private var _startButtonXPos:int;
+		private var _startButtonYPos:int;
+		
+		private var _urlContinueButton:String;
+		private var _urlContinueButtonOver:String;
+		private var _continueButtonWidth:int;
+		private var _continueButtonHeight:int;
+		private var _continueXPos:int;
+		private var _continueYPos:int;
+		
 		private var _urlAlternative:String;
 		private var _urlAlternativeOver:String;
 		private var _urlAlternativeCorrect:String;
 		private var _urlAlternativeWrong:String;
-		private var imagePath:String = "../assets/";
+		private var _alternativeWidth:int;
+		private var _alternativeHeight:int;
+		private var _alternativeXPos:int;
+		private var _alternativeYPos:int;
+		private var _alternativeFont:String;
+		private var _alternativeSize:int;
+		private var _alternativeColor:uint;
+		private var _alternativeLetterVisibility:Boolean;
+		
+		private var _urlPlayAgainButton:String;
+		private var _urlPlayAgainButtonOver:String;
+		private var _playAgainButtonWidth:int;
+		private var _playAgainButtonHeight:int;
+		
+		private var _urlShareButton:String;
+		private var _urlShareButtonOver:String;
+		private var _urlShareImgDefault:Object;
+		private var _shareButtonWidth:int;
+		private var _shareButtonHeight:int;
+		private var _shareButtonXPos:int;
+		private var _shareButtonYPos:int;
+		
+		private var _urlRankingGold:String;
+		private var _urlRankingSilver:String;
+		private var _urlRankingBronze:String;
+		private var _resultWidth:int;
+		private var _resultHeight:int;
+		private var _resultXPos:int;
+		private var _resultYPos:int;
+		
+		private var _urlToShare:String;
+		private var _descriptionShare:String;
+		private var _captionShare:String;
+		
+		private var _imagePath:String;
 		
 		
 		public var loadXMLComplete:Signal = new Signal();
@@ -79,24 +149,89 @@ package com.data
 		{
 			_arrayOfQuestion = [];
 			_arrayOfAllQuestion = [];
-			_arrayOfResults = [];
+			_arrayOfChooseds = [];
+			_arrayOfResults = new Vector.<Result>;
+			_arrayOfAlternatives = new Vector.<Alternative>;
 			var xml:XML = new XML(event.target.data);
 			_quizName = xml.quiz.@name;
 			_quizType = xml.quiz.@type;
 			
-			_urlStartScreen = imagePath + xml.quiz.@startScreenImg;
-			_urlQuestionScreen = imagePath + xml.quiz.@questionScreenImg;
-			_urlRankingScreen = imagePath + xml.quiz.@rankingScreenImg;
-			_urlAlternative = imagePath + xml.quiz.@alternativeImg;
-			_urlAlternativeCorrect = imagePath + xml.quiz.@alternativeCorrectImg; 
-			_urlAlternativeWrong = imagePath + xml.quiz.@alternativeWrongImg; 
-			_urlAlternativeOver = imagePath + xml.quiz.@alternativeOverImg; 
-			_urlStartButton = imagePath + xml.buttonImgs.@startButtonImg;
-			_urlStartButtonOver = imagePath + xml.buttonImgs.@startButtonOverImg;
-			_urlPlayAgainButton = imagePath + xml.buttonImgs.@playAgainButtonImg;
-			_urlPlayAgainButtonOver = imagePath + xml.buttonImgs.@playAgainButtonOverImg;
-			_urlShareButton = imagePath + xml.buttonImgs.@shareButtonImg;
-			_urlShareButtonOver = imagePath + xml.buttonImgs.@shareButtonOverImg;
+			_imagePath = xml.quiz.@urlPath;
+			
+			_urlStartScreen = _imagePath + xml.startScreen.@img;
+			_urlQuestionScreen = _imagePath + xml.questionScreen.@img;
+			_urlRankingScreen = _imagePath + xml.rankingScreen.@img;
+			
+			_urlToShare = xml.quiz.@urlToShare;
+			_descriptionShare = xml.quiz.@description;
+			_captionShare = xml.quiz.@caption;
+			
+			_startButtonXPos = xml.startScreen.@startButtonXPos;
+			_startButtonYPos = xml.startScreen.@startButtonYPos;
+			
+			_questionXPos = xml.questionScreen.@questionXPos;
+			_questionYPos = xml.questionScreen.@questionYPos;
+			_questionFont = xml.questionScreen.@questionFont;
+			_questionSize = xml.questionScreen.@questionSize;
+			_questionColor = xml.questionScreen.@questionColor;
+			
+			_questionNumberXPos = xml.questionScreen.@questionNumberXPos;
+			_questionNumberYPos = xml.questionScreen.@questionNumberYPos;
+			_questionNumberPrefix = xml.questionScreen.@questionNumberPrefix;
+			_questionNumberFont = xml.questionScreen.@questionNumberFont;
+			_questionNumberSize = xml.questionScreen.@questionNumberSize;
+			_questionNumberColor = xml.questionScreen.@questionNumberColor;
+			
+			_urlNavigator = _imagePath + xml.navigatorPanelImgs.@navigatorImg;
+			_urlNavigatorIndicator = _imagePath + xml.navigatorPanelImgs.@navigatorIndicatorImg;
+			_urlNavigatorIndicatorActual = _imagePath + xml.navigatorPanelImgs.@navigatorIndicatorActualImg;
+			_navigatorFont = xml.navigatorPanelImgs.@font;
+			_navigatorFontSize = xml.navigatorPanelImgs.@fontSize;
+			_navigatorFontColor = xml.navigatorPanelImgs.@fontColor;
+			_navigatorType = xml.navigatorPanelImgs.@type;
+			_navigatorXPos = xml.navigatorPanelImgs.@xPos;
+			_navigatorYPos = xml.navigatorPanelImgs.@yPos;
+			
+			_urlStartButton = _imagePath + xml.startButtonImgs.@startButtonImg;
+			_urlStartButtonOver = _imagePath + xml.startButtonImgs.@startButtonOverImg;
+			_startButtonWidth = xml.startButtonImgs.@width;
+			_startButtonHeight = xml.startButtonImgs.@height;
+			
+			_urlContinueButton = _imagePath + xml.continueButtonImgs.@continueButtonImg;
+			_urlContinueButtonOver = _imagePath + xml.continueButtonImgs.@continueButtonOverImg;
+			_continueButtonWidth = xml.continueButtonImgs.@width;
+			_continueButtonHeight = xml.continueButtonImgs.@height;
+			_continueXPos = xml.continueButtonImgs.@xPos;
+			_continueYPos = xml.continueButtonImgs.@yPos;
+			
+			_urlAlternative = _imagePath + xml.alternativeImgs.@alternativeImg;
+			_urlAlternativeCorrect = _imagePath + xml.alternativeImgs.@alternativeCorrectImg; 
+			_urlAlternativeWrong = _imagePath + xml.alternativeImgs.@alternativeWrongImg; 
+			_urlAlternativeOver = _imagePath + xml.alternativeImgs.@alternativeOverImg; 
+			_alternativeWidth = xml.alternativeImgs.@width;
+			_alternativeHeight = xml.alternativeImgs.@height;
+			_alternativeXPos = xml.alternativeImgs.@xPos;
+			_alternativeYPos = xml.alternativeImgs.@yPos;
+			_alternativeFont = xml.alternativeImgs.@font;
+			_alternativeSize = xml.alternativeImgs.@size;
+			_alternativeColor = xml.alternativeImgs.@color;
+			_alternativeLetterVisibility = Boolean(int(xml.alternativeImgs.@letterVisibility));
+			
+			_urlPlayAgainButton = _imagePath + xml.playAgainButtonImgs.@playAgainButtonImg;
+			_urlPlayAgainButtonOver = _imagePath + xml.playAgainButtonImgs.@playAgainButtonOverImg;
+			_playAgainButtonWidth = xml.alternativeImgs.@width;
+			_playAgainButtonHeight = xml.alternativeImgs.@height;
+			
+			_urlShareButton = _imagePath + xml.shareButtonImgs.@shareButtonImg;
+			_urlShareButtonOver = _imagePath + xml.shareButtonImgs.@shareButtonOverImg;
+			_urlShareImgDefault = _imagePath + xml.shareButtonImgs.@defaultImg;
+			_shareButtonWidth = xml.alternativeImgs.@width;
+			_shareButtonHeight = xml.alternativeImgs.@height;
+			_shareButtonXPos = xml.shareButtonImgs.@xPos;
+			_shareButtonYPos = xml.shareButtonImgs.@yPos;
+			//_continueDynamicText = xml.buttonImgs.@continueDynamicText;
+			
+			
 			
 			_numberOfQuestionsToAnswer = xml.questions.@questionsToAnswer;
 			var numberOfQuestionsInXML:int = xml.questions.question.length();
@@ -109,7 +244,7 @@ package com.data
 				question.init();
 				question.setQuestion(xml.questions.*[i].@question);
 				question.setCorrectAlternative(xml.alternatives.*[i].@correctAnswer);
-				for (var j:int = 0; j < _numberOfAlternatives; j++) 
+				for (var j:int = 0; j < _numberOfAlternatives; j++)
 				{
 					question.setAlternative( j, xml.alternatives.*[i].*[j].@answer );
 				}
@@ -117,12 +252,35 @@ package com.data
 			}
 			
 			if(_quizType == TYPE_POLL){
-				_numberOfResults = xml.results.result.lenght();
+				_numberOfResults = xml.results.result.length();
 				for (var k:int = 0; k < _numberOfResults; k++) 
 				{
 					var result:Result = new Result();
-					_arrayOfResults.push();
+					result.setName(xml.results.*[k]);
+					result.setType(xml.results.*[k].@type);
+					result.setImagePath(_imagePath);
+					result.setShareImgUrl(_imagePath + xml.results.*[k].@shareImgUrl);
+					result.setPhotoUrl(_imagePath + xml.results.*[k].@photoUrl);
+					_resultXPos = xml.results.@xPos;
+					_resultYPos = xml.results.@yPos;
+					_arrayOfResults.push(result);
 				}
+			}else{
+				/*_numberOfResults = xml.results.result.length();
+				for (var l:int = 0; l < _numberOfResults; l++) 
+				{
+					var result:Result = new Result();
+					result.setShareImgUrl(_imagePath + xml.results.*[l].@shareImgUrl);
+					result.setPhotoUrl(_imagePath + xml.results.*[k]);
+					_arrayOfResults.push(result);
+				}*/
+				_urlRankingGold = _imagePath + xml.results.*[0];
+				_urlRankingSilver = _imagePath + xml.results.*[1];
+				_urlRankingBronze = _imagePath + xml.results.*[2];
+				_resultWidth = xml.results.@width;
+				_resultHeight = xml.results.@height;
+				_resultXPos = xml.results.@xPos;
+				_resultYPos = xml.results.@yPos;
 			}
 			
 			_arrayOfQuestion = _arrayOfAllQuestion;
@@ -364,5 +522,599 @@ package com.data
 		{
 			_urlShareButtonOver = value;
 		}
+		
+		public function setAlternativeChoosed(letter:String):void
+		{
+			_arrayOfChooseds.push(letter);
+			trace(_arrayOfChooseds);
+			for (var i:int = 0; i < _arrayOfAlternatives.length; i++) 
+			{
+				if(_arrayOfAlternatives[i].alternativeLetter == letter){
+					_arrayOfAlternatives[i].addChoosedTime();
+				}
+			}
+		}
+		
+		public function getAlternativesChooseds():Vector.<Alternative>
+		{
+			return _arrayOfAlternatives;
+		}
+		
+		public function setArrayOfAlternatives(value:Vector.<Alternative>):void
+		{
+			_arrayOfAlternatives = value;
+		}
+
+		public function getArrayOfResults():Vector.<Result>
+		{
+			return _arrayOfResults;
+		}
+
+		public function setArrayOfResults(value:Vector.<Result>):void
+		{
+			_arrayOfResults = value;
+		}
+
+		public function getUrlContinueButton():String
+		{
+			return _urlContinueButton;
+		}
+
+		public function setUrlContinueButton(value:String):void
+		{
+			_urlContinueButton = value;
+		}
+
+		public function getUrlContinueButtonOver():String
+		{
+			return _urlContinueButtonOver;
+		}
+
+		public function setUrlContinueButtonOver(value:String):void
+		{
+			_urlContinueButtonOver = value;
+		}
+
+		public function getImagePath():String
+		{
+			return _imagePath;
+		}
+
+		public function setImagePath(value:String):void
+		{
+			_imagePath = value;
+		}
+
+		public function getStartButtonWidth():int
+		{
+			return _startButtonWidth;
+		}
+
+		public function setStartButtonWidth(value:int):void
+		{
+			_startButtonWidth = value;
+		}
+
+		public function getStartButtonHeight():int
+		{
+			return _startButtonHeight;
+		}
+
+		public function setStartButtonHeight(value:int):void
+		{
+			_startButtonHeight = value;
+		}
+
+		public function getContinueButtonWidth():int
+		{
+			return _continueButtonWidth;
+		}
+
+		public function setContinueButtonWidth(value:int):void
+		{
+			_continueButtonWidth = value;
+		}
+
+		public function getContinueButtonHeight():int
+		{
+			return _continueButtonHeight;
+		}
+
+		public function setContinueButtonHeight(value:int):void
+		{
+			_continueButtonHeight = value;
+		}
+
+		public function getAlternativeWidth():int
+		{
+			return _alternativeWidth;
+		}
+
+		public function setAlternativeWidth(value:int):void
+		{
+			_alternativeWidth = value;
+		}
+
+		public function getAlternativeHeight():int
+		{
+			return _alternativeHeight;
+		}
+
+		public function setAlternativeHeight(value:int):void
+		{
+			_alternativeHeight = value;
+		}
+
+		public function getPlayAgainButtonWidth():int
+		{
+			return _playAgainButtonWidth;
+		}
+
+		public function setPlayAgainButtonWidth(value:int):void
+		{
+			_playAgainButtonWidth = value;
+		}
+
+		public function getPlayAgainButtonHeight():int
+		{
+			return _playAgainButtonHeight;
+		}
+
+		public function setPlayAgainButtonHeight(value:int):void
+		{
+			_playAgainButtonHeight = value;
+		}
+
+		public function getShareButtonWidth():int
+		{
+			return _shareButtonWidth;
+		}
+
+		public function setShareButtonWidth(value:int):void
+		{
+			_shareButtonWidth = value;
+		}
+
+		public function getShareButtonHeight():int
+		{
+			return _shareButtonHeight;
+		}
+
+		public function setShareButtonHeight(value:int):void
+		{
+			_shareButtonHeight = value;
+		}
+
+		public function getQuestionXPos():int
+		{
+			return _questionXPos;
+		}
+
+		public function setQuestionXPos(value:int):void
+		{
+			_questionXPos = value;
+		}
+
+		public function getQuestionYPos():int
+		{
+			return _questionYPos;
+		}
+
+		public function setQuestionYPos(value:int):void
+		{
+			_questionYPos = value;
+		}
+
+		public function getQuestionNumberXPos():int
+		{
+			return _questionNumberXPos;
+		}
+
+		public function setQuestionNumberXPos(value:int):void
+		{
+			_questionNumberXPos = value;
+		}
+
+		public function getQuestionNumberYPos():int
+		{
+			return _questionNumberYPos;
+		}
+
+		public function setQuestionNumberYPos(value:int):void
+		{
+			_questionNumberYPos = value;
+		}
+
+		public function getStartButtonXPos():int
+		{
+			return _startButtonXPos;
+		}
+
+		public function setStartButtonXPos(value:int):void
+		{
+			_startButtonXPos = value;
+		}
+
+		public function getStartButtonYPos():int
+		{
+			return _startButtonYPos;
+		}
+
+		public function setStartButtonYPos(value:int):void
+		{
+			_startButtonYPos = value;
+		}
+
+		public function getAlternativeXPos():int
+		{
+			return _alternativeXPos;
+		}
+
+		public function setAlternativeXPos(value:int):void
+		{
+			_alternativeXPos = value;
+		}
+
+		public function getAlternativeYPos():int
+		{
+			return _alternativeYPos;
+		}
+
+		public function setAlternativeYPos(value:int):void
+		{
+			_alternativeYPos = value;
+		}
+
+		public function getQuestionNumberPrefix():String
+		{
+			return _questionNumberPrefix;
+		}
+
+		public function setQuestionNumberPrefix(value:String):void
+		{
+			_questionNumberPrefix = value;
+		}
+
+		public function getUrlRankingGold():String
+		{
+			return _urlRankingGold;
+		}
+
+		public function setUrlRankingGold(value:String):void
+		{
+			_urlRankingGold = value;
+		}
+
+		public function getUrlRankingSilver():String
+		{
+			return _urlRankingSilver;
+		}
+
+		public function setUrlRankingSilver(value:String):void
+		{
+			_urlRankingSilver = value;
+		}
+
+		public function getUrlRankingBronze():String
+		{
+			return _urlRankingBronze;
+		}
+
+		public function setUrlRankingBronze(value:String):void
+		{
+			_urlRankingBronze = value;
+		}
+
+		public function getResultWidth():int
+		{
+			return _resultWidth;
+		}
+
+		public function setResultWidth(value:int):void
+		{
+			_resultWidth = value;
+		}
+
+		public function getResultHeight():int
+		{
+			return _resultHeight;
+		}
+
+		public function setResultHeight(value:int):void
+		{
+			_resultHeight = value;
+		}
+
+		public function getQuestionNumberFont():String
+		{
+			return _questionNumberFont;
+		}
+
+		public function setQuestionNumberFont(value:String):void
+		{
+			_questionNumberFont = value;
+		}
+
+		public function getQuestionNumberSize():int
+		{
+			return _questionNumberSize;
+		}
+
+		public function setQuestionNumberSize(value:int):void
+		{
+			_questionNumberSize = value;
+		}
+
+		public function getQuestionNumberColor():uint
+		{
+			return _questionNumberColor;
+		}
+
+		public function setQuestionNumberColor(value:uint):void
+		{
+			_questionNumberColor = value;
+		}
+
+		public function getQuestionFont():String
+		{
+			return _questionFont;
+		}
+
+		public function setQuestionFont(value:String):void
+		{
+			_questionFont = value;
+		}
+
+		public function getQuestionSize():int
+		{
+			return _questionSize;
+		}
+
+		public function setQuestionSize(value:int):void
+		{
+			_questionSize = value;
+		}
+
+		public function getQuestionColor():uint
+		{
+			return _questionColor;
+		}
+
+		public function setQuestionColor(value:uint):void
+		{
+			_questionColor = value;
+		}
+
+		public function getAlternativeFont():String
+		{
+			return _alternativeFont;
+		}
+
+		public function setAlternativeFont(value:String):void
+		{
+			_alternativeFont = value;
+		}
+
+		public function getAlternativeSize():int
+		{
+			return _alternativeSize;
+		}
+
+		public function setAlternativeSize(value:int):void
+		{
+			_alternativeSize = value;
+		}
+
+		public function getAlternativeColor():uint
+		{
+			return _alternativeColor;
+		}
+
+		public function setAlternativeColor(value:uint):void
+		{
+			_alternativeColor = value;
+		}
+
+		public function getUrlNavigator():String
+		{
+			return _urlNavigator;
+		}
+
+		public function setUrlNavigator(value:String):void
+		{
+			_urlNavigator = value;
+		}
+
+		public function getUrlNavigatorIndicator():String
+		{
+			return _urlNavigatorIndicator;
+		}
+
+		public function setUrlNavigatorIndicator(value:String):void
+		{
+			_urlNavigatorIndicator = value;
+		}
+
+		public function getUrlNavigatorIndicatorActual():String
+		{
+			return _urlNavigatorIndicatorActual;
+		}
+
+		public function setUrlNavigatorIndicatorActual(value:String):void
+		{
+			_urlNavigatorIndicatorActual = value;
+		}
+
+		public function getNavigatorType():String
+		{
+			return _navigatorType;
+		}
+
+		public function setNavigatorType(value:String):void
+		{
+			_navigatorType = value;
+		}
+
+		public function getNavigatorXPos():int
+		{
+			return _navigatorXPos;
+		}
+
+		public function setNavigatorXPos(value:int):void
+		{
+			_navigatorXPos = value;
+		}
+
+		public function getNavigatorYPos():int
+		{
+			return _navigatorYPos;
+		}
+
+		public function setNavigatorYPos(value:int):void
+		{
+			_navigatorYPos = value;
+		}
+
+		public function setActualQuestion(value:int):void
+		{
+			_questionActualNumber = value;
+		}
+
+		public function getActualQuestion():int
+		{
+			return _questionActualNumber;
+		}
+
+		public function getNavigatorFont():String
+		{
+			return _navigatorFont;
+		}
+
+		public function setNavigatorFont(value:String):void
+		{
+			_navigatorFont = value;
+		}
+
+		public function getNavigatorFontSize():int
+		{
+			return _navigatorFontSize;
+		}
+
+		public function setNavigatorFontSize(value:int):void
+		{
+			_navigatorFontSize = value;
+		}
+
+		public function getNavigatorFontColor():uint
+		{
+			return _navigatorFontColor;
+		}
+
+		public function setNavigatorFontColor(value:uint):void
+		{
+			_navigatorFontColor = value;
+		}
+
+		public function getContinueXPos():int
+		{
+			return _continueXPos;
+		}
+
+		public function setContinueXPos(value:int):void
+		{
+			_continueXPos = value;
+		}
+
+		public function getContinueYPos():int
+		{
+			return _continueYPos;
+		}
+
+		public function setContinueYPos(value:int):void
+		{
+			_continueYPos = value;
+		}
+
+		public function getAlternativeLetterVisibility():Boolean
+		{
+			return _alternativeLetterVisibility;
+		}
+
+		public function setAlternativeLetterVisibility(value:Boolean):void
+		{
+			_alternativeLetterVisibility = value;
+		}
+
+		public function getShareButtonXPos():int
+		{
+			return _shareButtonXPos;
+		}
+
+		public function setShareButtonXPos(value:int):void
+		{
+			_shareButtonXPos = value;
+		}
+
+		public function getShareButtonYPos():int
+		{
+			return _shareButtonYPos;
+		}
+
+		public function setShareButtonYPos(value:int):void
+		{
+			_shareButtonYPos = value;
+		}
+
+		public function getResultXPos():int
+		{
+			return _resultXPos;
+		}
+
+		public function setResultXPos(value:int):void
+		{
+			_resultXPos = value;
+		}
+
+		public function getResultYPos():int
+		{
+			return _resultYPos;
+		}
+
+		public function setResultYPos(value:int):void
+		{
+			_resultYPos = value;
+		}
+
+		public function getUrlToShare():String
+		{
+			return _urlToShare;
+		}
+
+		public function setUrlToShare(value:String):void
+		{
+			_urlToShare = value;
+		}
+
+		public function getDescriptionShare():String
+		{
+			return _descriptionShare;
+		}
+
+		public function setDescriptionShare(value:String):void
+		{
+			_descriptionShare = value;
+		}
+
+		public function getCaptionShare():String
+		{
+			return _captionShare;
+		}
+
+		public function setCaptionShare(value:String):void
+		{
+			_captionShare = value;
+		}
+
+
 	}
 }

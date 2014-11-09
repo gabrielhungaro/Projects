@@ -1,21 +1,191 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chooseObjects>
-	<app name="MUSAS da COPA" startScreenImg="startScreenImg.jpg" />
+	<app name="MUSAS da COPA" startScreenImg="startScreenImg.jpg" urlAssets="../assets/"/>
 	<buttonImgs startButtonImg="startButtonImg.jpg" startButtonImgOver="startButtonOverImg.jpg"
 				shareButtonImg="shareButtonImg.jpg" shareButtonImgOver="shareButtonOverImg.jpg" 
 				playAgainButtonImg="playAgainButtonImg.jpg" playAgainButtonImgOver="playAgainButtonOverImg.jpg" 
 				photoUrlThumb1="photoThumb1.png" photoUrlThumb2="photoThumb2.png" 
-				photoUrlOver="photoThumbOver.png" vsUrl="vsImg.png"/>
+				photoUrlOver="photoThumbOver.png" vsUrl="vsImg.png" vsXPos="280" vsYPos="410"/>
 	<objects>
-		<object nome="Opção1">
+		<object nome="Shakira">
 			<name>Shakira</name>
 			<info>Gerard Piqué</info>
 			<photoUrl>Shakira.jpg</photoUrl>
+			<votes>0</votes>
 		</object>
-		<object nome="Opção2">
+		<object nome="Irina Shayk">
 			<name>Irina Shayk</name>
 			<info>Cristiano Ronaldo</info>
 			<photoUrl>IrinaSayk.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="AbbeyClancy">
+			<name>Abbey Clancy</name>
+			<info>Peter Crouch</info>
+			<photoUrl>AbbeyClancy.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="Alena Šeredová">
+			<name>Alena Šeredová</name>
+			<info>Gianluigi Buffon</info>
+			<photoUrl>AlenaSeredova.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="AlexCurran">
+			<name>Alex Curran</name>
+			<info>Steven Gerrard</info>
+			<photoUrl>AlexCurran.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="Antonella Roccuzzo">
+			<name>Antonella Roccuzzo</name>
+			<info>Lionel Messi</info>
+			<photoUrl>AntonellaRoccuzzo.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="BiancaKajlich">
+			<name>Bianca Kajlich</name>
+			<info>Landon Donovan</info>
+			<photoUrl>BiancaKajlich.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="CarolinaMarcialis">
+			<name>Carolina Marcialis</name>
+			<info>Antonio Cassano</info>
+			<photoUrl>CarolinaMarcialis.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="CathyFischer">
+			<name>Cathy Fischer</name>
+			<info>Mats Hummels</info>
+			<photoUrl>CathyFischer.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="ChristineBleakley">
+			<name>Christine Bleakley</name>
+			<info>Frank Lampard</info>
+			<photoUrl>ChristineBleakley.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="ColeenRooney">
+			<name>Coleen Rooney</name>
+			<info>Wayne Rooney</info>
+			<photoUrl>ColeenRooney.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="DaniellaSemaan">
+			<name>Daniella Semaan</name>
+			<info>Cesc Fabregas</info>
+			<photoUrl>DaniellaSemaan.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="FannyNeguesha">
+			<name>Fanny Neguesha</name>
+			<info>Mario Balotelli</info>
+			<photoUrl>FannyNeguesha.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="Gina Lisa Lohfink">
+			<name>Gina Lisa Lohfink</name>
+			<info>Jerome Boateng</info>
+			<photoUrl>GinaLisaLohfink.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="JaydyMichel">
+			<name>Jaydy Michel</name>
+			<info>Rafael Marquez</info>
+			<photoUrl>JaydyMichel.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="JennyRohde">
+			<name>Jenny Rohde</name>
+			<info>Marcel Schmelzer</info>
+			<photoUrl>JennyRohde.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="LisaMueller">
+			<name>Lisa Mueller</name>
+			<info>Thomas Mueller</info>
+			<photoUrl>LisaMueller.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="MelissaSatta">
+			<name>Melissa Satta</name>
+			<info>Kevin-Prince Boateng</info>
+			<photoUrl>MelissaSatta.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="MenayeDonkor">
+			<name>Menaye Donkor</name>
+			<info>Sulley Muntari</info>
+			<photoUrl>MenayeDonkor.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="MichelaQuattrociocche">
+			<name>Michela Quattrociocche</name>
+			<info>Aquilani</info>
+			<photoUrl>MichelaQuattrociocche.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="NagoreAranburu">
+			<name>Nagore Aranburu</name>
+			<info>Xabi Alonso</info>
+			<photoUrl>NagoreAranburu.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="PilarRubio">
+			<name>PilarRubio</name>
+			<info>Sergio Ramos</info>
+			<photoUrl>PilarRubio.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="RobertaMarchisio">
+			<name>Roberta Marchisio</name>
+			<info>Claudio Marchisio</info>
+			<photoUrl>RobertaMarchisio.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="SaraCarbonero">
+			<name>Sara Carbonero</name>
+			<info>Iker Casillas</info>
+			<photoUrl>SaraCarbonero.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="SarahBrandner">
+			<name>Sarah Brandner</name>
+			<info>Schweinsteiger</info>
+			<photoUrl>SarahBrandner.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="SilviaMeichel">
+			<name>Silvia Meichel</name>
+			<info>Mario Gomez</info>
+			<photoUrl>SilviaMeichel.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="SusanaWerner">
+			<name>Susana Werner</name>
+			<info>Julio Cesar</info>
+			<photoUrl>SusanaWerner.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="SylviaKlose">
+			<name>Sylvia Klose</name>
+			<info>Klose</info>
+			<photoUrl>SylviaKlose.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="SylvieVanDerVaart">
+			<name>Sylvie Van Der Vaart</name>
+			<info>Rafael Van Der Vaart</info>
+			<photoUrl>SylvieVanDerVaart.jpg</photoUrl>
+			<votes>0</votes>
+		</object>
+		<object nome="YolantheCabau">
+			<name>Yolanthe Cabau</name>
+			<info>Wesley Sneijder</info>
+			<photoUrl>YolantheCabau.jpg</photoUrl>
+			<votes>0</votes>
 		</object>
 	</objects>
 </chooseObjects>

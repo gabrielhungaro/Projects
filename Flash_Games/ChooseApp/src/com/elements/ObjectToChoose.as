@@ -2,6 +2,7 @@ package com.elements
 {
 	import com.data.DataInfo;
 	import com.data.Debug;
+	import com.data.FontEmbeder;
 	import com.greensock.events.LoaderEvent;
 	import com.greensock.loading.ImageLoader;
 	import com.greensock.loading.LoaderMax;
@@ -12,6 +13,7 @@ package com.elements
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	
 	import org.osflash.signals.Signal;
 	
@@ -20,6 +22,7 @@ package com.elements
 		private var _name:String;
 		private var _photo:Bitmap;
 		private var _info:String;
+		private var _urlThumb:String;
 		private var _urlPhotoThumb1:String;
 		private var _urlPhotoThumb2:String;
 		private var _urlPhotoOver:String;
@@ -27,17 +30,17 @@ package com.elements
 		private var _nameField:TextField;
 		private var _infoField:TextField;
 		private var _containerPhoto:Sprite;
+		private var _containerThumb:Sprite;
 		private var _containerPhotoOver:Sprite;
-		private var _containerThumb1:Sprite;
-		private var _containerThumb2:Sprite;
-		private var _numberChoosedTimes:int;
+		private var _containerThumbPhoto1:Sprite;
+		private var _containerThumbPhoto2:Sprite;
 		private var _width:int = 290;
 		private var _height:int = 370;
+		private var _numberOfVotes:int;
 		
-		private var nameTextField:TextField;
-		private var infoTextField:TextField;
 		public var onClick:Signal;
 		private var withOverAvaliable:Boolean;
+		private var numberToAppear:int;
 		
 		public function ObjectToChoose()
 		{
@@ -52,16 +55,34 @@ package com.elements
 			placeHolder.graphics.endFill();
 			this.addChild(placeHolder);
 			
-			nameTextField = new TextField();
-			nameTextField.text = _name;
+			_nameField = new TextField();
+			_nameField.defaultTextFormat = FontEmbeder.getTextFormatInstanceByFontName(FontEmbeder.FONT_NAME_BEBAS_BOLD, 40);
+			_nameField.text = _name;
+			_nameField.textColor = 0xFFFFFF;
+			_nameField.selectable = false;
+			_nameField.autoSize = TextFieldAutoSize.LEFT;
+			_nameField.x = placeHolder.width/2 - _nameField.textWidth/2;
+			_nameField.y = placeHolder.y + placeHolder.height;// + _nameField.textHeight/2;
+			this.addChild(_nameField);
+			
+			_infoField = new TextField();
+			_infoField.defaultTextFormat = FontEmbeder.getTextFormatInstanceByFontName(FontEmbeder.FONT_NAME_BEBAS_BOOK, 30);
+			_infoField.text = _info;
+			_infoField.textColor = 0xFFFFFF;
+			_infoField.selectable = false;
+			_infoField.autoSize = TextFieldAutoSize.LEFT;
+			_infoField.x = placeHolder.width/2 - _infoField.textWidth/2;
+			_infoField.y = _nameField.y + _nameField.textHeight;
+			this.addChild(_infoField);
 			
 			onClick = new Signal();
 			_nameField = new TextField();
 			_infoField = new TextField();
 			this._nameField.text = _name;
 			this._infoField.text = _info;
-			this.addChild(_containerThumb1 = new Sprite());
-			this.addChild(_containerThumb2 = new Sprite());
+			this._containerThumb = new Sprite();
+			this.addChild(_containerThumbPhoto1 = new Sprite());
+			this.addChild(_containerThumbPhoto2 = new Sprite());
 			this.addChild(_containerPhoto = new Sprite());
 			this.addChild(_containerPhotoOver = new Sprite());
 			_containerPhoto.x = _containerPhotoOver.x = 12;
@@ -83,10 +104,11 @@ package com.elements
 			settings.name("thumbs");
 			
 			var loader:LoaderMax = new LoaderMax(settings);
-			loader.append( new ImageLoader(_urlPhotoThumb1, {name:"thumb1", estimatedBytes:5000, container:_containerThumb1}));
-			loader.append( new ImageLoader(_urlPhotoThumb2, {name:"thumb2", estimatedBytes:5000, container:_containerThumb2}));
+			loader.append( new ImageLoader(_urlPhotoThumb1, {name:"thumb1", estimatedBytes:5000, container:_containerThumbPhoto1}));
+			loader.append( new ImageLoader(_urlPhotoThumb2, {name:"thumb2", estimatedBytes:5000, container:_containerThumbPhoto2}));
 			loader.append( new ImageLoader(_urlPhotoOver, {name:"photoOver", estimatedBytes:5000, container:_containerPhotoOver}));
 			loader.append( new ImageLoader(_urlPhoto, {name:"photo", estimatedBytes:5000, container:_containerPhoto}));
+			loader.append( new ImageLoader(_urlThumb, {name:"thumb", estimatedBytes:5000, container:_containerThumb}));
 			loader.load();
 			
 			this.addEventListener(MouseEvent.CLICK, onClickObject);
@@ -106,7 +128,12 @@ package com.elements
 		
 		protected function onClickObject(event:MouseEvent):void
 		{
-			onClick.dispatch();
+			onClick.dispatch(this);
+		}
+		
+		public function addVote():void
+		{
+			_numberOfVotes++;
 		}
 		
 		private function loadPhotoHandler(event:LoaderEvent):void
@@ -120,7 +147,6 @@ package com.elements
 		private function completeLoadImagesHanlder(event:LoaderEvent):void
 		{
 			Debug.message(Debug.INFO, "[ completeLoadImagesHanlder ]");
-			trace(this.width);
 			withOverAvaliable = true;
 		}
 		
@@ -190,14 +216,9 @@ package com.elements
 			_urlPhotoThumb1 = value;
 		}
 
-		public function getNumberChoosedTimes():int
+		public function setUrlThumb(value:String):void
 		{
-			return _numberChoosedTimes;
-		}
-
-		public function setNumberChoosedTimes(value:int):void
-		{
-			_numberChoosedTimes = value;
+			_urlThumb = value;
 		}
 
 		public function getWidth():int
@@ -220,6 +241,35 @@ package com.elements
 			_height = value;
 		}
 
+		public function setNumberOfVotes(value:int):void
+		{
+			_numberOfVotes = value;
+		}
+
+		public function getNumberOfVotes():int
+		{
+			return _numberOfVotes;
+		}
+
+		public function getContainerThumb():Sprite
+		{
+			return _containerThumb;
+		}
+
+		public function setContainerThumb(value:Sprite):void
+		{
+			_containerThumb = value;
+		}
+		
+		public function addNumberToAppear():void
+		{
+			numberToAppear++;
+		}
+		
+		public function getNumberToAppear():int
+		{
+			return numberToAppear;
+		}
 
 	}
 }

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data><!--The quiz type can be quiz or poll-->
+	<quiz name="Teste" type="poll"  urlPath="http://media.mundodositio.globo.com.s3.amazonaws.com/face/quiz/assets/test/"description="" caption=""/>
+	
+	<startScreen img="startScreenImg.jpg" startButtonXPos="400" startButtonYPos="380" />
+	<questionScreen img="questionScreenImg.jpg" questionXPos="70" questionYPos="0" questionFont="LatoBlack" questionSize="40" questionColor="0x1d1d1b" questionNumberXPos="70" questionNumberYPos="160" questionNumberPrefix="" questionNumberFont="LatoBlack" questionNumberSize="44" questionNumberColor="0x1d1d1b"/>
+	<rankingScreen img="resultScreenImg.jpg" />
+	
+	<!-- navigator can be text or image, in text the number of questions and totalQuestions will be showed, in image the navigation will be do by number of images in screen -->
+	<navigatorPanelImgs		type="img" navigatorImg="navigatorImg.jpg" navigatorIndicatorImg="navigatorIndicatorImg.png" navigatorIndicatorActualImg="navigatorIndicatorActualImg.png" font="GloberBoldFree" fontSize="13" fontColor="0x54c757" xPos="310" yPos="55"/>
+	<startButtonImgs 		startButtonImg="startButtonImg.png" startButtonOverImg="startButtonOverImg.png" width="197" height="62" xPos="400" yPos="380"/>
+	<continueButtonImgs		continueButtonImg="continueButtonImg.png" continueButtonImgOver="continueButtonOverImg.png" width="163" height="51" xPos="720" yPos="495"/>
+	<alternativeImgs 		alternativeImg="alternativeImg.jpg" alternativeOverImg="alternativeOverImg.jpg" 
+							alternativeCorrectImg="alternativeCorrectImg.jpg" alternativeWrongImg="alternativeWrongImg.jpg" letterVisibility="0" width="385" height="95" xPos="70" yPos="245" 
+							font="GloberBoldFree" size="25" color="1d1d1b"/>
+	<shareButtonImgs 		shareButtonImg="shareButtonImg.png" shareButtonOverImg="shareButtonOverImg.jpg" xPos="700" yPos="380" defaultImg="shareImage.jpg"/>
+	<playAgainButtonImgs 	playAgainButtonImg="playAgainButtonImg.jpg" playAgainButtonOverImg="playAgainButtonOverImg.jpg" xPos="7" yPos="271" />
+	
+	<questions questionsToAnswer="6">
+		<question number="1"	question="No Carnaval você..."/>
+		<question number="2"	question="Pra você sol combina com..."/>
+		<question number="3"	question="Fim de semana é sinônimo de:"/>
+		<question number="4"	question="Você levanta..."/>
+		<question number="5"	question="Um jogo vira um espetáculo quando"/>
+		<question number="6"	question="Só é bom time se tiver..."/>
+	</questions>	
+	
+	<alternatives>
+		<question number="1"	correctAnswer="C">
+			<alternative answer="Mostra que tem samba no pé"/>
+			<alternative answer="Até ensaia umas batucadas na mesa, mas não levanta da cadeira."/>
+			<alternative answer="Dança ao melhor estilo “gringo”, com os dedos levantados para cima"/>
+			<alternative answer="Viaja pra outro país e não quer nem saber de samba"/>
+		</question>
+				
+		<question number="2"	correctAnswer="A">
+			<alternative answer="Praia"/>
+			<alternative answer="Exercício"/>
+			<alternative answer="Bebida gelada"/>
+			<alternative answer="Protetor solar"/>
+		</question>
+				
+		<question number="3"	correctAnswer="B">
+			<alternative answer="Karaokê com os amigos"/>
+			<alternative answer="Cinema com ou sem pipoca"/>
+			<alternative answer="Feira de artesanato ou antiguidade"/>
+			<alternative answer="Leitura no sofá com os pés para cima e o bicho de estimação do lado"/>
+		</question>
+				
+		<question number="4"	correctAnswer="A">
+			<alternative answer="Abrindo as janelas e cantarolando alguma canção"/>
+			<alternative answer="Pensando em dormir mais 5 minutos"/>
+			<alternative answer="Meio sonado e nem pensa em conversar nas primeiras horas do dia"/>
+			<alternative answer="Arquitetando como vai distribuir as duas tarefas"/>
+		</question>
+				
+		<question number="5"	correctAnswer="B">
+			<alternative answer="A torcida faz a ola"/>
+			<alternative answer="O jogo é disputado gol a gol"/>
+			<alternative answer="Dribles preenchem o campo"/>
+			<alternative answer="O atacante dá uma bicicleta no último minuto do segundo tempo"/>
+		</question>
+				
+		<question number="6"	correctAnswer="C">
+			<alternative answer="Uma muralha no gol"/>
+			<alternative answer="Ataque de primeira"/>
+			<alternative answer="Laterais criativos"/>
+			<alternative answer="Meio de campo inteligente"/>
+		</question>
+		
+	</alternatives>
+	<results xPos="65" yPos="80">
+			<result type="favorite" photoUrl="espanha.png" shareImgUrl="espanhaShare.jpg">Espanha</result>
+			<result type="surprise" photoUrl="usa.png" shareImgUrl="euaShare.jpg">EUA</result>
+			<result type="favorite" photoUrl="italia.png" shareImgUrl="italiaShare.jpg">Itália</result>
+			<result type="unlucky" photoUrl="suica.png" shareImgUrl="suicaShare.jpg">Suíça</result>
+			<result type="haveChance" photoUrl="portugal.png" shareImgUrl="portugalShare.jpg">Portugal</result>
+			<result type="surprise" photoUrl="chile.png" shareImgUrl="chileShare.jpg">Chile</result>
+			<result type="haveChance" photoUrl="franca.png" shareImgUrl="francaShare.jpg">França</result>
+			<result type="unlucky" photoUrl="ira.png" shareImgUrl="iraShare.jpg">Irã</result>
+			<result type="unlucky" photoUrl="gana.png" shareImgUrl="ganaShare.jpg">Gana</result>
+			<result type="surprise" photoUrl="mexico.png" shareImgUrl="mexicoShare.jpg">México</result>
+			<result type="unlucky" photoUrl="costaRica.png" shareImgUrl="costaRicaShare.jpg">Costa Rica</result>
+			<result type="favorite" photoUrl="argentina.png" shareImgUrl="argentinaShare.jpg">Argentina</result>
+			<result type="surprise" photoUrl="japao.png" shareImgUrl="japaoShare.jpg">Japão</result>
+			<result type="haveChance" photoUrl="inglaterra.png" shareImgUrl="inglaterraShare.jpg">Inglaterra</result>
+		</results>
+</data>

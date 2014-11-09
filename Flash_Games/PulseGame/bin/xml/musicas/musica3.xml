@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<delay>0.3</delay>
+	
+	<sequencia>
+		<notas>
+			<variable nota="2" />
+			<variable nota="4" />
+			<variable nota="7" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="5" />
+			<variable nota="4" />
+			<variable nota="2" />
+			<variable nota="7" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="7" />
+			<variable nota="2" />
+			<variable nota="4" />
+			<variable nota="5" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="5" />
+			<variable nota="2" />
+			<variable nota="7" />
+			<variable nota="2" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="6" />
+			<variable nota="5" />
+			<variable nota="2" />
+			<variable nota="7" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="7" />
+			<variable nota="7" />
+			<variable nota="4" />
+			<variable nota="2" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="6" />
+			<variable nota="2" />
+			<variable nota="3" />
+			<variable nota="5" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="2" />
+			<variable nota="5" />
+			<variable nota="7" />
+			<variable nota="4" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="5" />
+			<variable nota="4" />
+			<variable nota="3" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="7" />
+			<variable nota="4" />
+			<variable nota="3" />
+			<variable nota="3" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="4" />
+			<variable nota="2" />
+			<variable nota="5" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="7" />
+			<variable nota="4" />
+			<variable nota="3" />
+			<variable nota="5" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="6" />
+			<variable nota="2" />
+			<variable nota="3" />
+			<variable nota="4" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="4" />
+			<variable nota="7" />
+			<variable nota="7" />
+			<variable nota="2" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="6" />
+			<variable nota="5" />
+			<variable nota="7" />
+			<variable nota="2" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="3" />
+			<variable nota="4" />
+			<variable nota="5" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="2" />
+			<variable nota="5" />
+			<variable nota="3" />
+			<variable nota="7" />
+		</notas>
+	</sequencia>
+	<musicaFundo>musica3Fundo</musicaFundo>
+	<musicaCerta>musica3Certa</musicaCerta>
+	<musicaErrada>musica3Errada</musicaErrada>
+</data>

@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data><!--The quiz type can be Quiz or Poll-->
-	<quiz name="Teste" type="Quiz" startScreenImg="startScreenImg.jpg" questionScreenImg="questionScreenImg.jpg" rankingScreenImg="rankingScreenImg.jpg"/>
-	<buttonImgs startButtonImg="startButtonImg.jpg" startButtonOverImg="startButtonOverImg.jpg"
-				shareButtonImg="shareButtonImg.jpg" shareButtonOverImg="shareButtonOverImg.jpg" 
-				playAgainButtonImg="playAgainButtonImg.jpg" playAgainButtonOverImg="playAgainButtonOverImg.jpg" 
-				alternativeButtonImg="alternativeButtonImg.jpg" alternativeButtonOverImg="alternativeButtonOverImg.jpg" 
-				alternativeButtonCorrectImg="alternativeButtonCorrectImg.jpg" alternativeButtonWrongImg="alternativeButtonWrongImg.jpg"/>
-	<questions questionsToAnswer="2">
+	<quiz name="Teste" type="quiz" urlPath="../assets/" urlToShare=" " description=" " caption=" "/>
+	
+	<startScreen img="startScreenImg.jpg" startButtonXPos="375" startButtonYPos="270" />
+	<questionScreen img="questionScreenImg.jpg" questionXPos="65" questionYPos="95" questionFont="GloberBoldFree" questionSize="32" questionColor="0x000000" questionNumberXPos="-10" questionNumberYPos="-20" questionNumberPrefix="#" questionNumberFont="LatoBlack" questionNumberSize="96" questionNumberColor="0x36c6e0"/>
+	<rankingScreen img="resultScreenImg.jpg" />
+	<!-- navigator can be text or image, in text the number of questions and totalQuestions will be showed, in image the navigation will be do by number of images in screen -->
+	<navigatorPanelImgs		type="text" navigatorImg="" navigatorIndicatorImg="" font="GloberBoldFree" fontSize="13" fontColor="0x54c757" xPos="850" yPos="420"/>
+	<startButtonImgs 		startButtonImg="startButtonImg.jpg" startButtonOverImg="startButtonOverImg.jpg" width="197" height="62" xPos="374" yPos="271"/>
+	<continueButtonImgs		continueButtonImg="continueButtonImg.png" continueButtonImgOver="continueButtonOverImg.png" width="163" height="51" xPos="740" yPos="405" text="PRÓXIMA" textFont="GloberBoldFree" textSize="24" countQuestion="true" />
+	<alternativeImgs 		alternativeImg="alternativeImg.jpg" alternativeOverImg="alternativeOverImg.jpg" 
+							alternativeCorrectImg="alternativeCorrectImg.jpg" alternativeWrongImg="alternativeWrongImg.jpg" letterVisibility="1" width="391" height="96" xPos="65" yPos="160" 
+							font="GloberBoldFree" size="25" color="1d1d1b"/>
+	<shareButtonImgs 		shareButtonImg="shareButtonImg.jpg" shareButtonOverImg="shareButtonOverImg.jpg"  xPos="650" yPos="405" defaultImg="shareImage.jpg"/>
+	<playAgainButtonImgs 	playAgainButtonImg="playAgainButtonImg.jpg" playAgainButtonOverImg="playAgainButtonOverImg.jpg"  xPos="374" yPos="271"/>
+	
+	<questions questionsToAnswer="6">
 		<question number="1"	question="O que é poliomielite?"/>
 		<question number="2"	question="Como combatê-la?"/>
 		<question number="3"	question="Por qual outro nome ela também é conhecida?"/>
@@ -66,15 +75,12 @@
 			<alternative answer="Através das vias aéreas"/> 
 		</question>
 		
-		<results>
-			<result>Brasil</result>
-			<result>Alemanha</result>
-			<result>EUA</result>
-			<result>Inglaterra</result>
-			<result>Espanha</result>
-			<result>Italia</result>
-			<result>Argentina</result>
-			<result>Holanda</result>
-		</results>
 	</alternatives>
+	
+	<results width="747" height="301" xPos="65" yPos="80">
+		<result shareImgUrl="goldShare.jpg">goldResult.png</result>
+		<result shareImgUrl="silverShare.jpg">silverResult.png</result>
+		<result shareImgUrl="bronzeShare.jpg">bronzeResult.png</result>
+	</results>
+	
 </data>

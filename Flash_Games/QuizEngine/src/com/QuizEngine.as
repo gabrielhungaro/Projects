@@ -1,5 +1,6 @@
 package com
 {
+	import com.connector.FacebookConnector;
 	import com.data.QuizDataInfo;
 	import com.scene.InitScene;
 	import com.scene.LoadingScene;
@@ -9,13 +10,11 @@ package com
 	import com.scene.ScenesName;
 	
 	import flash.display.Sprite;
-	import flash.display.Stage;
 	import flash.geom.Point;
 	
-	[SWF(width="500", height="500")]
+	[SWF(width="940", height="600")]
 	public class QuizEngine extends Sprite
 	{
-		private var _stage:Stage;
 		private var _display:Sprite;
 		private var _sceneManager:SceneManager;
 		private static var appWidth:Number = 500;
@@ -23,6 +22,10 @@ package com
 		
 		public function QuizEngine()
 		{
+			
+			//FacebookConnector.getInstance().onInit.addOnce( onFacebookInitHandler );
+			//FacebookConnector.getInstance().init( "222166561311477" ); 
+			
 			initSceneManager();
 			var quizData:QuizDataInfo = QuizDataInfo.getInstance();
 			quizData.setAppWidth(stage.stageWidth)
@@ -31,12 +34,14 @@ package com
 			quizData.initLoad();
 		}
 		
+		private function onFacebookInitHandler( result:Object , fail:Object ):void
+		{
+			
+		}
+		
 		private function initSceneManager():void
 		{
-			trace(stage.width);
-			_stage = stage;
 			_display = new Sprite();
-			trace(_stage.stageHeight);
 			this.addChild(_display);
 						
 			_sceneManager = new SceneManager(_display);

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<delay>0.5</delay>
+	
+	<sequencia>
+		<notas>
+			<variable nota="3" />
+			<variable nota="5" />
+			<variable nota="4" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="6" />
+			<variable nota="3" />
+			<variable nota="5" />
+			<variable nota="4" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="4" />
+			<variable nota="6" />
+			<variable nota="3" />
+			<variable nota="4" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="4" />
+			<variable nota="3" />
+			<variable nota="5" />
+			<variable nota="5" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="5" />
+			<variable nota="6" />
+			<variable nota="4" />
+			<variable nota="3" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="3" />
+			<variable nota="3" />
+			<variable nota="4" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="5" />
+			<variable nota="3" />
+			<variable nota="6" />
+			<variable nota="5" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="4" />
+			<variable nota="3" />
+			<variable nota="5" />
+			<variable nota="3" />
+		</notas>
+	</sequencia>
+
+	<sequencia>
+		<notas>
+			<variable nota="6" />
+			<variable nota="3" />
+			<variable nota="4" />
+			<variable nota="4" />
+		</notas>
+	</sequencia>
+	
+	<sequencia>
+		<notas>
+			<variable nota="4" />
+			<variable nota="3" />
+			<variable nota="5" />
+			<variable nota="6" />
+		</notas>
+	</sequencia>
+	
+	<musicaFundo>musica1Fundo</musicaFundo>
+	<musicaCerta>musica1Certa</musicaCerta>
+	<musicaErrada>musica1Errada</musicaErrada>
+</data>

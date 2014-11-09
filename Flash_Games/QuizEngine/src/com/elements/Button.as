@@ -1,7 +1,6 @@
 package com.elements
 {
 	import com.data.Debug;
-	import com.globo.sitio.engine.debug.Debug;
 	import com.greensock.events.LoaderEvent;
 	import com.greensock.loading.ImageLoader;
 	import com.greensock.loading.LoaderMax;
@@ -22,17 +21,21 @@ package com.elements
 		private var OVER:String = "over";
 		private var OUT:String = "out";
 		public var onClick:Signal = new Signal();
-		private var overImgEnabled:Boolean;
+		private var overImgEnabled:Boolean = false;
+		private var _width:int;
+		private var _height:int;
 		
-		public function Button()
+		public function Button(btWidth:int = 150, btHeight:int = 50)
 		{
+			_width = btWidth;
+			_height = btHeight;
 		}
 		
 		public function init():void
 		{
 			var placeHolder:Sprite = new Sprite();
-			placeHolder.graphics.beginFill(0x303030, 1);
-			placeHolder.graphics.drawRect(0, 0, 20, 10);
+			placeHolder.graphics.beginFill(0x303030, 0);
+			placeHolder.graphics.drawRect(0, 0, _width, _height);
 			placeHolder.graphics.endFill();
 			placeHolder.mouseChildren = false;
 			placeHolder.mouseEnabled = false;
@@ -73,20 +76,34 @@ package com.elements
 			settings.name("sceneImages");
 			
 			var loader:LoaderMax = new LoaderMax(settings);
-			loader.append( new ImageLoader(urlButton, {name:"buttonImg", estimatedBytes:5000, onComplete:completeLoadImageHandler, container:buttonImg}));
-			loader.append( new ImageLoader(urlButtonOver, {name:"buttonImgOver", estimatedBytes:5000, onComplete:completeLoadImageOverHandler, container:buttonImgOver}));
+			loader.append( new ImageLoader(urlButton, {name:buttonName + "Img", estimatedBytes:5000, onComplete:completeLoadImageHandler, container:buttonImg}));
+			loader.append( new ImageLoader(urlButtonOver, {name:buttonName + "ImgOver", estimatedBytes:5000, onComplete:completeLoadImageOverHandler, onError:errorLoadOverImgHandler, container:buttonImgOver}));
 			loader.load();
 		}
 		
 		public function changeButtonState(state:String):void
 		{
+			var oldWidth:Number;
+			var oldHeight:Number;
+			var newWidth:Number;
+			var newHeight:Number;
+			var differenceWidth:Number;
+			var differenceHeight:Number;
 			switch(state){
 				case OVER:
 					if(overImgEnabled){
 						buttonImgOver.visible = true;
 						buttonImg.visible = false;
 					}else{
+						oldWidth = buttonImg.width;
+						oldHeight = buttonImg.height;
 						buttonImg.scaleX = buttonImg.scaleY += 0.1;
+						newWidth = buttonImg.width;
+						newHeight = buttonImg.height;
+						differenceWidth = newWidth - oldWidth;
+						differenceHeight = newHeight - oldHeight;
+						buttonImg.x = buttonImg.x - differenceWidth/2;
+						buttonImg.y = buttonImg.y - differenceHeight/2;
 					}
 					break;
 				case OUT:
@@ -94,7 +111,15 @@ package com.elements
 						buttonImgOver.visible = false;
 						buttonImg.visible = true;
 					}else{
+						oldWidth = buttonImg.width;
+						oldHeight = buttonImg.height;
 						buttonImg.scaleX = buttonImg.scaleY -= 0.1;
+						newWidth = buttonImg.width;
+						newHeight = buttonImg.height;
+						differenceWidth = newWidth - oldWidth;
+						differenceHeight = newHeight - oldHeight;
+						buttonImg.x = buttonImg.x - differenceWidth/2;
+						buttonImg.y = buttonImg.y - differenceHeight/2;
 					}
 					break;
 			}
@@ -103,11 +128,15 @@ package com.elements
 		private function completeLoadAllImagesHandler(event:LoaderEvent):void
 		{
 			Debug.message(Debug.INFO, "BUTTON - [ " + buttonName + " ] - completeLoadAllImagesHandler");
-			overImgEnabled = true;
 			changeButtonState(OUT);
 		}
 		
 		private function errorLoadAllImagesHandler(event:LoaderEvent):void
+		{
+			Debug.message(Debug.INFO, "BUTTON - [ " + buttonName + " ] - errorLoadAllImagesHandler");
+		}
+		
+		private function errorLoadOverImgHandler(event:LoaderEvent):void
 		{
 			Debug.message(Debug.INFO, "BUTTON - [ " + buttonName + " ] - errorLoadAllImagesHandler");
 			overImgEnabled = false;
@@ -121,6 +150,7 @@ package com.elements
 		private function completeLoadImageOverHandler(event:LoaderEvent):void
 		{
 			Debug.message(Debug.INFO, "BUTTON - [ " + buttonName + " ] - OVER - completeLoadImageOverHandler");
+			overImgEnabled = true;
 		}
 		
 		public function destroy():void

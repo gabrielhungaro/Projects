@@ -8,7 +8,6 @@
 
 package com.scene {
 	import com.data.Debug;
-	import com.globo.sitio.engine.debug.Debug;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;

@@ -2,8 +2,9 @@ package com.scene
 {
 	import com.data.Alternative;
 	import com.data.Debug;
+	import com.data.FontEmbeder;
 	import com.data.Question;
-	import com.globo.sitio.engine.debug.Debug;
+	import com.elements.Button;
 	import com.greensock.TweenLite;
 	import com.greensock.events.LoaderEvent;
 	import com.greensock.loading.ImageLoader;
@@ -22,6 +23,8 @@ package com.scene
 		private var alternative:Alternative;
 		private var alternativeTextField:TextField;
 		private var questionTextField:TextField;
+		private var questionNumberTextField:TextField;
+		private var continueButton:Button;
 		
 		private var currentQuestion:Question;
 		private var arrayOfQuestion:Array;
@@ -41,6 +44,10 @@ package com.scene
 		private var offSetY:Number;
 		private var numberOfCols:int;
 		private var numberOfLines:int;
+		private var _continueButtonAvaliable:Boolean;
+		private var _alternativeChoosed:Object;
+		private var _alternativeAlreadyChoosed:Boolean;
+		private var _navigator:Navigator;
 		
 		public function QuestionScene()
 		{
@@ -50,6 +57,7 @@ package com.scene
 		override public function init():void
 		{
 			questionNumber = 1;
+			quizData.setActualQuestion(questionNumber);
 			numberOfQuestions = 0;
 			numberOfAlternatives = 4;
 			alternativeOverLabel;
@@ -74,21 +82,55 @@ package com.scene
 			this.addChild(backgroundContainer);
 			
 			mcQuestion = new MovieClip();
-			mcQuestion.graphics.beginFill(0x606060, 1);
-			mcQuestion.graphics.drawRect(0, 0, quizData.getAppWidth() - offSetX*2, quizData.getAppHeight()/3 - offSetY*2);
+			mcQuestion.graphics.beginFill(0x606060, 0);
+			mcQuestion.graphics.drawRect(0, 0, quizData.getAppWidth() - offSetX*6, quizData.getAppHeight()/8);
 			mcQuestion.graphics.endFill();
-			mcQuestion.x = (quizData.getAppWidth() - mcQuestion.width)/2;
-			mcQuestion.y = offSetY;
+			//mcQuestion.x = (quizData.getAppWidth() - mcQuestion.width)/2;
+			//mcQuestion.y = (quizData.getAppHeight()/8)*2;
+			mcQuestion.x = quizData.getQuestionNumberXPos();
+			mcQuestion.y = quizData.getQuestionNumberYPos();
 			this.addChild(mcQuestion);
 			questionTextField = new TextField();
+			questionNumberTextField = new TextField();
 			
 			mcAlternativeContainer = new Sprite();
-			mcAlternativeContainer.graphics.beginFill(0x303030, 1);
-			mcAlternativeContainer.graphics.drawRect(0, 0, quizData.getAppWidth() - offSetX*2, quizData.getAppHeight() - (mcQuestion.height + offSetY*2.5));
+			mcAlternativeContainer.graphics.beginFill(0x303030, 0);
+			//mcAlternativeContainer.graphics.drawRect(0, 0, quizData.getAppWidth() - offSetX*2, quizData.getAppHeight() - (mcQuestion.height + offSetY*2.5));
+			//mcAlternativeContainer.graphics.drawRect(0, 0, mcQuestion.width, quizData.getAppHeight() - ((mcQuestion.y + mcQuestion.height) + offSetY*6));
+			mcAlternativeContainer.graphics.drawRect(0, 0, mcQuestion.width, quizData.getAlternativeHeight()*2 + offSetY*3);
 			mcAlternativeContainer.graphics.endFill();
-			mcAlternativeContainer.x = offSetX;
-			mcAlternativeContainer.y = mcQuestion.x + mcQuestion.height + offSetY/2;
+			//mcAlternativeContainer.x = mcQuestion.x;
+			//mcAlternativeContainer.y = mcQuestion.y + mcQuestion.height + offSetY/2;
+			//mcAlternativeContainer.y = mcQuestion.y + mcQuestion.height + offSetY/2;
+			mcAlternativeContainer.x = quizData.getAlternativeXPos();
+			mcAlternativeContainer.y = quizData.getAlternativeYPos();
 			this.addChild(mcAlternativeContainer);
+			
+			if(quizData.getUrlContinueButton() != quizData.getImagePath() && quizData.getUrlContinueButton() != null){
+				continueButton = new Button(quizData.getContinueButtonWidth(), quizData.getContinueButtonHeight());
+				continueButton.setButtonName("continue");
+				continueButton.setUrlButton(quizData.getUrlContinueButton());
+				continueButton.setUrlButtonOver(quizData.getUrlContinueButtonOver());
+				continueButton.onClick.add(onClickContinue);
+				continueButton.init();
+				continueButton.load();
+				this.addChild(continueButton);
+				//continueButton.x = mcQuestion.width - continueButton.width/2;
+				//continueButton.y = mcAlternativeContainer.y + mcAlternativeContainer.height + offSetY;
+				continueButton.x = quizData.getContinueXPos();
+				continueButton.y = quizData.getContinueYPos();
+				continueButton.buttonMode = true;
+				_continueButtonAvaliable = true;
+				turnContinueAvaliableOff();
+			}else{
+				_continueButtonAvaliable = false;
+			}
+			
+			_navigator = new Navigator();
+			this.addChild(_navigator);
+			_navigator.init();
+			_navigator.x = quizData.getNavigatorXPos();
+			_navigator.y = quizData.getNavigatorYPos();
 			
 			var settings:LoaderMaxVars = new LoaderMaxVars();
 			settings.onComplete(this.completeLoadAllImagesHandler);
@@ -102,7 +144,8 @@ package com.scene
 			loader.append( new ImageLoader(quizData.getUrlQuestionScreen(), {name:"questionScreenImage", estimatedBytes:5000, onComplete:completeLoadImageHandler, container:backgroundContainer}));
 			loader.load();
 			
-			fillQuestion();
+			changeQuestion();
+			//fillQuestion();
 		}
 		
 		private function errorLoadAllImagesHandler(event:LoaderEvent):void
@@ -122,17 +165,63 @@ package com.scene
 			Debug.message(Debug.INFO, "[ " + this.name + " ] - completeLoadImageHandler " + event.target.name);
 		}
 		
+		private function onClickContinue():void
+		{
+			if(_alternativeAlreadyChoosed){
+				if(quizData.getQuizType() == quizData.TYPE_QUIZ){
+					verifyAlternative(_alternativeChoosed);
+				}
+				removeListeners();
+				clearQuestionAndAlternatives();
+			}
+		}
+		
+		private function turnContinueAvaliableOff():void
+		{
+			if(quizData.getUrlContinueButton() != quizData.getImagePath() && quizData.getUrlContinueButton() != null){
+				continueButton.mouseChildren = continueButton.mouseEnabled = false;
+				continueButton.alpha = .5;
+			}
+		}
+		
+		private function turnContinueAvaliableOn():void
+		{
+			if(quizData.getUrlContinueButton() != quizData.getImagePath() && quizData.getUrlContinueButton() != null){
+				continueButton.mouseChildren = continueButton.mouseEnabled = true;
+				continueButton.alpha = 1;
+			}else{
+				removeListeners();
+			}
+		}
+		
 		private function fillQuestion():void
 		{
+			_navigator.updateNavigator();
 			arrayOfQuestion = quizData.getArrayOfQuestions();
 			
 			var randomQuestionNumber:int = Math.floor(Math.random()*arrayOfQuestion.length);
 			var question:Question = arrayOfQuestion[randomQuestionNumber];
+			
+			questionNumberTextField.text = quizData.getQuestionNumberPrefix() + String(questionNumber);
+			questionNumberTextField.setTextFormat(FontEmbeder.getTextFormatInstanceByFontName(quizData.getQuestionNumberFont(), quizData.getQuestionNumberSize()));
+			questionNumberTextField.selectable = false;
+			questionNumberTextField.autoSize = "left";
+			questionNumberTextField.multiline = true;
+			questionNumberTextField.textColor = quizData.getQuestionNumberColor();
+			//questionNumberTextField.x = quizData.getQuestionNumberXPos();
+			//questionNumberTextField.y = quizData.getQuestionNumberYPos();
+			mcQuestion.addChild(questionNumberTextField);
+			
 			questionTextField.text = question.getQuestion();
+			questionTextField.setTextFormat(FontEmbeder.getTextFormatInstanceByFontName(quizData.getQuestionFont(), quizData.getQuestionSize()));
 			questionTextField.selectable = false;
 			questionTextField.autoSize = "left";
 			questionTextField.multiline = true;
+			questionTextField.textColor = quizData.getQuestionColor();
 			questionTextField.width = mcQuestion.width - offSetX;
+			//questionTextField.x = questionNumberTextField.x + questionNumberTextField.textWidth + offSetX;
+			questionTextField.x = quizData.getQuestionXPos();
+			questionTextField.y = quizData.getQuestionYPos();
 			mcQuestion.addChild(questionTextField);
 			currentQuestion = question;
 			arrayOfQuestion.splice(randomQuestionNumber, 1);
@@ -143,24 +232,32 @@ package com.scene
 			for (var j:int = 0; j < numberOfAlternatives; j++) 
 			{
 				if(arrayOfAlternatives.length < numberOfAlternatives){
-					alternative = new Alternative();
+					alternative = new Alternative(quizData.getAlternativeWidth(), quizData.getAlternativeHeight());
 					arrayOfAlternatives.push(alternative);
 					mcAlternativeContainer.addChild(alternative);
+					alternative.buttonMode = true;
+					alternative.addEventListener(MouseEvent.CLICK, onClickAlternative);
+					alternative.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+					alternative.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+					
+					alternative.alternativeText = question.getAlternativeArray()[j];
+					alternative.alternativeLetter = question.getAlternativeLettersArray()[j];
+					alternative.fillAlternative();
 				}
 				//alternative.alpha = 0;
-				
-				arrayOfAlternatives[j].buttonMode = true;
-				arrayOfAlternatives[j].addEventListener(MouseEvent.CLICK, onClickAlternative);
-				arrayOfAlternatives[j].addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-				arrayOfAlternatives[j].addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				
 				arrayOfAlternatives[j].alternativeText = question.getAlternativeArray()[j];
 				arrayOfAlternatives[j].alternativeLetter = question.getAlternativeLettersArray()[j];
 				arrayOfAlternatives[j].fillAlternative();
 				
 				//alternative.x = numberOfCols
-				arrayOfAlternatives[j].x = offSetX*(cols+1) + (arrayOfAlternatives[j].width*cols);
-				arrayOfAlternatives[j].y = offSetY*(lines+1) + (arrayOfAlternatives[j].height*lines);
+				
+				/*var middleOfAlternativeList:int = (numberOfCols * arrayOfAlternatives[j].width)/2;
+				var initialPosX:int = (mcAlternativeContainer.width/2) - middleOfAlternativeList;
+				arrayOfAlternatives[j].x = initialPosX + (arrayOfAlternatives[j].width*cols);*/
+				
+				arrayOfAlternatives[j].x = offSetX*(cols) + (mcAlternativeContainer.width/2*cols);
+				arrayOfAlternatives[j].y = offSetY*(lines+1) + (quizData.getAlternativeHeight()*lines);
 				if(cols == numberOfCols-1){
 					cols = 0;
 					lines++;
@@ -172,19 +269,110 @@ package com.scene
 		
 		private function onClickAlternative(event:MouseEvent):void
 		{
-			/*if(alternativerOverLabel){
-			actualText = event.currentTarget.alternativeText.text;
-			event.currentTarget.gotoAndStop(SELECTED);
-			event.currentTarget.alternativeText.text = actualText;
-			}*/
+			//removeListeners();
+			completeTweenOnQuestion();
+			_alternativeAlreadyChoosed = true;
+			_alternativeChoosed = event.currentTarget;
+			for (var j:int = 0; j < arrayOfAlternatives.length; j++) 
+			{
+				if(arrayOfAlternatives[j].alternativeLetter == _alternativeChoosed.alternativeLetter){
+					event.currentTarget.setIsSelected(true);
+				}else{
+					arrayOfAlternatives[j].setIsSelected(false);
+				}
+				arrayOfAlternatives[j].updateAnswerStatus(OUT);
+			}
+			turnContinueAvaliableOn();
+			if(quizData.getQuizType() == quizData.TYPE_QUIZ){
+				if(!_continueButtonAvaliable){
+					verifyAlternative(event.currentTarget);
+				}
+			}else{
+				verifyResult(event.currentTarget);
+			}
+		}
+		
+		private function verifyResult(alternative:Object):void
+		{
+			//removeListeners();
+			var letter:String = alternative.alternativeLetter;
+			letter = letter.split(" ")[0];
+			alternative.updateAnswerStatus(CORRECT);
 			
-			verifyAlternative(event.currentTarget);
+			for (var j:int = 0; j < arrayOfAlternatives.length; j++) 
+			{
+				if(arrayOfAlternatives[j].alternativeLetter == alternative.alternativeLetter){
+					arrayOfAlternatives[j].updateAnswerStatus(CORRECT);
+				}else if(arrayOfAlternatives[j].alternativeLetter != letter){
+					arrayOfAlternatives[j].setIsSelected(false);
+					arrayOfAlternatives[j].updateAnswerStatus(OUT);
+				}
+			}
+			
+			alternative.addChoosedTime();
+			//quizData.setAlternativeChoosed(letter);
+			if(!_continueButtonAvaliable){
+				clearQuestionAndAlternatives();
+			}
+		}
+		
+		private function clearQuestionAndAlternatives():void
+		{
+			for (var j:int = 0; j < arrayOfAlternatives.length; j++) 
+			{
+				TweenLite.to(arrayOfAlternatives[j], .5, {alpha:0, delay: 2});
+			}
+			questionNumber += 1;
+			quizData.setActualQuestion(questionNumber);
+			TweenLite.to(alternative, .5, {alpha:0, delay: 2});
+			TweenLite.to(questionTextField, .5, {alpha:0, delay: 2, onComplete:completeTweenOfQuestion});
 		}
 		
 		private function verifyAlternative(alternative:Object):void
 		{
 			var letter:String = alternative.alternativeLetter;
 			letter = letter.split(" ")[0];
+			removeListeners();
+			
+			if(letter == currentQuestion.getCorrectAlternative()){
+				alternative.updateAnswerStatus(CORRECT);
+				arrayOfAnwsers.push(CORRECT);
+				numberOfCorrectAnswers++;
+			}else{
+				alternative.updateAnswerStatus(WRONG)
+				arrayOfAnwsers.push(WRONG);
+				numberOfWrongAnswers++;
+			}
+			
+			for (var j:int = 0; j < arrayOfAlternatives.length; j++) 
+			{
+				if(arrayOfAlternatives[j].alternativeLetter == currentQuestion.getCorrectAlternative()){
+					arrayOfAlternatives[j].updateAnswerStatus(CORRECT);
+					TweenLite.to(arrayOfAlternatives[j], .5, {alpha:0, delay: 2});
+				}else if(arrayOfAlternatives[j].alternativeLetter != letter){
+					arrayOfAlternatives[j].updateAnswerStatus(OUT);
+					TweenLite.to(arrayOfAlternatives[j], .5, {alpha:0, delay: 2});
+				}
+			}
+			//questionNumber += 1;
+			TweenLite.to(alternative, .5, {alpha:0, delay: 2});
+			TweenLite.to(questionTextField, .5, {alpha:0, delay: 2, onComplete:completeTweenOfQuestion});
+		}
+		
+		private function addAlternativeListeners():void
+		{
+			for (var i:int = 0; i < arrayOfAlternatives.length; i++) 
+			{
+				arrayOfAlternatives[i].buttonMode = true;
+				arrayOfAlternatives[i].addEventListener(MouseEvent.CLICK, onClickAlternative);
+				arrayOfAlternatives[i].addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+				arrayOfAlternatives[i].addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			}
+		}
+		
+		private function removeListeners():void
+		{
+			turnContinueAvaliableOff();
 			for (var i:int = 0; i < arrayOfAlternatives.length; i++) 
 			{
 				arrayOfAlternatives[i].buttonMode = false;
@@ -192,51 +380,6 @@ package com.scene
 				arrayOfAlternatives[i].removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 				arrayOfAlternatives[i].removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 			}
-			
-			if(letter == currentQuestion.getCorrectAlternative()){
-				alternative.updateAnswerStatus(CORRECT)
-				arrayOfAnwsers.push(CORRECT);
-				/*actualText = alternative.alternativeText.text;
-				actualLetter = alternative.letter.text;
-				alternative.gotoAndStop(CORRECT);
-				alternative.alternativeText.text = actualText;
-				alternative.letter.text = actualLetter;*/
-				numberOfCorrectAnswers++;
-			}else{
-				alternative.updateAnswerStatus(WRONG)
-				arrayOfAnwsers.push(WRONG);
-				numberOfWrongAnswers++;
-				/*actualText = alternative.alternativeText.text;
-				actualLetter = alternative.letter.text;
-				alternative.gotoAndStop(WRONG);
-				alternative.alternativeText.text = actualText;
-				alternative.letter.text = actualLetter;*/
-			}
-			
-			for (var j:int = 0; j < arrayOfAlternatives.length; j++) 
-			{
-				if(arrayOfAlternatives[j].alternativeLetter == currentQuestion.getCorrectAlternative()){
-					arrayOfAlternatives[j].updateAnswerStatus(CORRECT);
-					/*actualText = arrayOfAlternatives[j].alternativeText.text;
-					actualLetter = arrayOfAlternatives[j].letter.text;
-					arrayOfAlternatives[j].gotoAndStop(CORRECT);
-					arrayOfAlternatives[j].alternativeText.text = actualText;
-					arrayOfAlternatives[j].letter.text = actualLetter;*/
-					TweenLite.to(arrayOfAlternatives[j], .5, {alpha:0, delay: 2});
-				}else if(arrayOfAlternatives[j].alternativeLetter != letter){
-					arrayOfAlternatives[j].updateAnswerStatus(OUT);
-					/*actualText = arrayOfAlternatives[j].alternativeText.text;
-					actualLetter = arrayOfAlternatives[j].letter.text;
-					arrayOfAlternatives[j].gotoAndStop(NOTCHOOSED);
-					arrayOfAlternatives[j].alternativeText.text = actualText;
-					arrayOfAlternatives[j].letter.text = actualLetter;*/
-					TweenLite.to(arrayOfAlternatives[j], .5, {alpha:0, delay: 2});
-				}
-			}
-			questionNumber += 1;
-			TweenLite.to(alternative, .5, {alpha:0, delay: 2});
-			TweenLite.to(questionTextField, .5, {alpha:0, delay: 2, onComplete:completeTweenOfQuestion});
-			
 		}
 		
 		private function completeTweenOfQuestion():void
@@ -251,18 +394,18 @@ package com.scene
 				TweenLite.killTweensOf(arrayOfAlternatives[i]);
 			}
 			TweenLite.killTweensOf(questionTextField);
-			
+			addAlternativeListeners();
 		}
 		
 		private function changeQuestion():void
 		{
 			if(questionNumber <= numberOfQuestions){
-				fillQuestion(/*arrayOfQuestion[questionNumber-1]*/);
 				for (var i:int = 0; i < arrayOfAlternatives.length; i++) 
 				{
 					TweenLite.to(arrayOfAlternatives[i], .5, {alpha:1});
 				}
 				TweenLite.to(questionTextField, .5, {alpha:1, onComplete:completeTweenOnQuestion});
+				fillQuestion(/*arrayOfQuestion[questionNumber-1]*/);
 			}else{
 				//TODO Finish
 				finishQuiz();
@@ -275,6 +418,7 @@ package com.scene
 		
 		private function finishQuiz():void
 		{
+			quizData.setArrayOfAlternatives(arrayOfAlternatives.concat());
 			quizData.setNumberOfCorrectAnswers(numberOfCorrectAnswers)
 			quizData.setNumberOfWrongAnswers(numberOfWrongAnswers)
 			this.gotoScene(ScenesName.RANKING_SCENE);
@@ -283,7 +427,6 @@ package com.scene
 		
 		private function completeTweenAlternatives(alternativeNumber:int):void
 		{
-			arrayOfAlternatives
 			if(alternativeNumber == numberOfAlternatives){
 				fillQuestion(/*arrayOfQuestion[questionNumber]*/);
 			}
@@ -292,29 +435,11 @@ package com.scene
 		private function onMouseOver(event:MouseEvent):void
 		{
 			event.currentTarget.updateAnswerStatus(OVER);
-			/*if(alternativerOverLabel){
-				actualText = event.currentTarget.alternativeText.text;
-				actualLetter = event.currentTarget.letter.text;
-				event.currentTarget.gotoAndStop(OVER);
-				event.currentTarget.alternativeText.text = actualText;
-				event.currentTarget.letter.text = actualLetter;
-			}else{
-				event.currentTarget.scaleX = event.currentTarget.scaleY += .1;
-			}*/
 		}
 		
 		private function onMouseOut(event:MouseEvent):void
 		{
 			event.currentTarget.updateAnswerStatus(OUT);
-			/*if(alternativerOverLabel){
-				actualText = event.currentTarget.alternativeText.text;
-				actualLetter = event.currentTarget.letter.text;
-				event.currentTarget.gotoAndStop(OUT);
-				event.currentTarget.alternativeText.text = actualText;
-				event.currentTarget.letter.text = actualLetter;
-			}else{
-				event.currentTarget.scaleX = event.currentTarget.scaleY -= .1;
-			}*/
 		}
 		
 		override public function destroy():void

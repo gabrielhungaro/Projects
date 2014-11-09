@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<musicas>
+		<musica nome="Música 1 Fácil"	url="musica1.xml" />
+		<musica nome="Música 2 Média"	url="musica2.xml" />
+		<musica nome="Música 3 Difícil"	url="musica3.xml" />
+	</musicas>
+</data>

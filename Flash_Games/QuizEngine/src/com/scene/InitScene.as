@@ -1,9 +1,7 @@
 package com.scene
 {
 	import com.data.Debug;
-	import com.data.QuizDataInfo;
 	import com.elements.Button;
-	import com.globo.sitio.engine.debug.Debug;
 	import com.greensock.events.LoaderEvent;
 	import com.greensock.loading.ImageLoader;
 	import com.greensock.loading.LoaderMax;
@@ -11,7 +9,6 @@ package com.scene
 	
 	import flash.display.Sprite;
 	import flash.events.IOErrorEvent;
-	import flash.events.MouseEvent;
 	import flash.text.TextField;
 	
 	public class InitScene extends Scene
@@ -31,36 +28,28 @@ package com.scene
 			backgroundContainer = new Sprite();
 			this.addChild(backgroundContainer);
 			
-			addLoadingScreen();
-			
 			addArt();
-		}
-		
-		private function addLoadingScreen():void
-		{
-			var loadingText:TextField = new TextField();
-			loadingText.text  = " LOADING... ";
-			this.addChild(loadingText);
 		}
 		
 		private function addArt():void
 		{
-			var quizNameTextField:TextField = new TextField();
+			/*var quizNameTextField:TextField = new TextField();
 			quizNameTextField.text = quizData.getQuizName();
 			quizNameTextField.x = quizData.getAppWidth()/2 - quizNameTextField.width/2;
 			quizNameTextField.y = 50;
-			this.addChild(quizNameTextField);
+			this.addChild(quizNameTextField);*/
 			
-			startButton = new Button();
+			startButton = new Button(quizData.getStartButtonWidth(), quizData.getStartButtonHeight());
+			startButton.setButtonName("StartButton");
 			startButton.setUrlButton(quizData.getUrlStartButton());
 			startButton.setUrlButtonOver(quizData.getUrlStartButtonOver());
 			this.addChild(startButton);
-			startButton.x = quizData.getAppWidth()/2 - startButton.width/2;
-			startButton.y = quizData.getAppHeight()/2;
 			startButton.buttonMode = true;
 			startButton.onClick.add(onClickStart);
 			startButton.init();
 			startButton.load();
+			startButton.x = quizData.getStartButtonXPos();
+			startButton.y = quizData.getStartButtonYPos();
 			
 			var settings:LoaderMaxVars = new LoaderMaxVars();
 			settings.onComplete(this.completeLoadAllImagesHandler);

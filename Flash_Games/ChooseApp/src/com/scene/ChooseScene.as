@@ -1,6 +1,7 @@
 package com.scene
 {
 	import com.elements.ObjectToChoose;
+	import com.elements.ThumbRanking;
 	import com.greensock.events.LoaderEvent;
 	import com.greensock.loading.ImageLoader;
 	import com.greensock.loading.LoaderMax;
@@ -14,6 +15,11 @@ package com.scene
 		private var objectToChoose:ObjectToChoose;
 		private var offSetX:int = 10;
 		private var offSetY:int = 10;
+		private var arrayOfPersonality:Array;
+		private var arrayOfRankingPersonalities:Array;
+		private var _rankingContainer:Sprite;
+		private var _containerPersonalities:Sprite;
+		private var _vsContainer:Sprite;
 		
 		public function ChooseScene()
 		{
@@ -44,8 +50,17 @@ package com.scene
 			startButton.y = quizData.getAppHeight()/2;*/
 			
 			load();
-			
+			arrayOfPersonality = [];
+			arrayOfRankingPersonalities = [];
+			_containerPersonalities = new Sprite();
+			this.addChild(_containerPersonalities);
+			_vsContainer = new Sprite();
+			_vsContainer.graphics.beginFill(0x000000, 1);
+			_vsContainer.graphics.drawRect(0, 0, 50, 50);
+			_vsContainer.graphics.endFill();
+			this.addChild(_vsContainer);
 			randomPerson();
+			mountRanking();
 		}
 		
 		private function load():void
@@ -58,9 +73,51 @@ package com.scene
 			settings.maxConnections(5);
 			settings.name("sceneImages");
 			
-			var loader:LoaderMax = new LoaderMax(settings);
+			var loader:LoaderMax = new LoaderMax(settings); 
 			loader.append( new ImageLoader(dataInfo.getUrlStartScreen(), {name:"startScreenImage", estimatedBytes:5000, onComplete:completeLoadImageHandler, container:backgroundContainer}));
+			loader.append( new ImageLoader(dataInfo.getUrlVs(), {name:"vsImage", estimatedBytes:5000, onComplete:completeLoadImageHandler, container:_vsContainer}));
 			loader.load();
+		}
+		
+		private function mountRanking():void
+		{
+			_rankingContainer = new Sprite();
+			_rankingContainer.graphics.beginFill(0x000000, 0);
+			_rankingContainer.graphics.drawRect(0, 0, dataInfo.getAppWidth(), dataInfo.getAppHeight()/4 + dataInfo.getAppHeight()/32*2);
+			_rankingContainer.graphics.endFill();
+			_rankingContainer.y = dataInfo.getAppHeight()/2 + (dataInfo.getAppHeight()/32)*3 + 1;
+			this.addChild(_rankingContainer);
+			
+			updateRanking();
+		}
+		
+		private function updateRanking():void
+		{
+			clearRanking();
+			var arrayOfRankingObjs:Vector.<ObjectToChoose> = dataInfo.getRankingTopByCount(3);
+			//var arrayOfRankingObjs:Vector.<ObjectToChoose> = dataInfo.getRankingObjects();
+			for (var i:int = 0; i < arrayOfRankingObjs.length; i++) 
+			{
+				var thumb:ThumbRanking = new ThumbRanking();
+				thumb.setPosition(i+1);
+				thumb.setPhoto(arrayOfRankingObjs[i]);
+				thumb.updateInfo();
+				_rankingContainer.addChild(thumb);
+				thumb.x = (offSetX*2)*(i+1) + thumb.getThumbWidth()*i;
+				thumb.y = thumb.getThumbHeight()/2;
+				arrayOfRankingPersonalities.push(thumb);
+			}
+		}
+		
+		private function clearRanking():void
+		{
+			for (var i:int = 0; i < arrayOfRankingPersonalities.length; i++) 
+			{
+				if(_rankingContainer.contains(arrayOfRankingPersonalities[i])){
+					_rankingContainer.removeChild(arrayOfRankingPersonalities[i]);
+				}
+			}
+			arrayOfRankingPersonalities = [];
 		}
 		
 		private function randomPerson():void
@@ -69,32 +126,49 @@ package com.scene
 			arrayOfObjects = dataInfo.getArrayOfObjectsToChoose().concat();
 			
 			var randomPersonalityNum1:int = Math.floor(Math.random() * arrayOfObjects.length);
-			this.addChild(arrayOfObjects[randomPersonalityNum1]);
+			_containerPersonalities.addChild(arrayOfObjects[randomPersonalityNum1]);
 			arrayOfObjects[randomPersonalityNum1].onClick.add(onClickPersonality);
 			arrayOfObjects[randomPersonalityNum1].x = dataInfo.getAppWidth()/2 - (arrayOfObjects[randomPersonalityNum1].getWidth() + offSetX);
 			arrayOfObjects[randomPersonalityNum1].y = arrayOfObjects[randomPersonalityNum1].getHeight()/1.5;
+			arrayOfObjects[randomPersonalityNum1].addNumberToAppear();
+			//adicionar numero de vezes que apareceu
+			arrayOfPersonality.push(arrayOfObjects[randomPersonalityNum1]);
 			arrayOfObjects.splice(randomPersonalityNum1, 1);
 			
 			var randomPersonalityNum2:int = Math.floor(Math.random() * arrayOfObjects.length);
-			this.addChild(arrayOfObjects[randomPersonalityNum2]);
+			_containerPersonalities.addChild(arrayOfObjects[randomPersonalityNum2]);
 			arrayOfObjects[randomPersonalityNum2].onClick.add(onClickPersonality);
 			arrayOfObjects[randomPersonalityNum2].x = dataInfo.getAppWidth()/2 + offSetX;
 			arrayOfObjects[randomPersonalityNum2].y = arrayOfObjects[randomPersonalityNum2].getHeight()/1.5;
+			arrayOfObjects[randomPersonalityNum2].addNumberToAppear();
+			arrayOfPersonality.push(arrayOfObjects[randomPersonalityNum2]);
 			arrayOfObjects.splice(randomPersonalityNum2, 1);
 			
-			
-
+			_vsContainer.x = dataInfo.getVsXPos();
+			_vsContainer.y = dataInfo.getVsYPos();
 		}
 		
-		private function onClickPersonality():void
+		private function onClickPersonality(personClicked:ObjectToChoose):void
 		{
-			
+			personClicked.addVote();
+			clearPersonContainers();
+			randomPerson();
+			updateRanking();
+		}
+		
+		private function clearPersonContainers():void
+		{
+			for (var i:int = 0; i < arrayOfPersonality.length; i++) 
+			{
+				if(_containerPersonalities.contains(arrayOfPersonality[i])){
+					_containerPersonalities.removeChild(arrayOfPersonality[i]);
+				}
+			}
+			arrayOfPersonality = [];
 		}
 		
 		private function completeLoadImageHandler(event:LoaderEvent):void
 		{
-			// TODO Auto Generated method stub
-			
 		}
 		
 		private function errorLoadAllImagesHandler(event:LoaderEvent):void
