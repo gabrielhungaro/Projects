@@ -3,16 +3,19 @@ package scenes
 	import com.greensock.TweenLite;
 	import com.greensock.TweenMax;
 	
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.Stage;
+	import flash.events.KeyboardEvent;
 
 	public class SceneManager
 	{
-		
 		private var _listOfScenes:Vector.<Scene>;
 		private var _currentScene:Scene;
 		private var _currentSceneIndex:int;
 		private var _display:Stage;
+		public var FIRST_FRAME:String = "first";
+		public var LAST_FRAME:String = "last";
 		
 		public function SceneManager()
 		{
@@ -21,7 +24,12 @@ package scenes
 		
 		public function start():void
 		{
-			
+			getDisplay().addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+		}
+		
+		public function onKeyDown(event:KeyboardEvent):void
+		{
+			_currentScene.onKeyDown(event);
 		}
 		
 		public function addSceme(sceneName:String, scene:Scene):void
@@ -31,7 +39,7 @@ package scenes
 			_listOfScenes.push(scene);
 		}
 		
-		public function changeScene(sceneName:String):void
+		public function changeScene(sceneName:String, startFrame:String = ""):void
 		{
 			TweenMax.killAll();
 			if(_currentScene != null){
@@ -45,14 +53,14 @@ package scenes
 			_currentScene = null;
 			_currentScene = getSceneByName(sceneName);
 			_display.addChild(_currentScene);
-			_currentScene.start();
+			_currentScene.start(startFrame);
 		}
 		
-		public function changeSceneByIndex(sceneIndex:int):void
+		public function changeSceneByIndex(sceneIndex:int, startFrame:String):void
 		{
 			if(sceneIndex == _currentSceneIndex){
 				return;
-			}else if(_listOfScenes.length < sceneIndex){
+			}else if(_listOfScenes.length <= sceneIndex){
 				return;
 			}else{
 				if(_currentScene != null)
@@ -61,7 +69,7 @@ package scenes
 				_currentScene = null;
 				_currentScene = this.getSceneByIndex(sceneIndex);
 				_display.addChild(_currentScene);
-				_currentScene.start();
+				_currentScene.start(startFrame);
 			}
 		}
 		
@@ -71,7 +79,7 @@ package scenes
 			var nextSceneIndex:int;
 			if(_currentSceneIndex != _listOfScenes.length){
 				nextSceneIndex = _currentSceneIndex + 1;
-				changeSceneByIndex(nextSceneIndex);
+				changeSceneByIndex(nextSceneIndex, FIRST_FRAME);
 			}
 		}
 		
@@ -81,7 +89,7 @@ package scenes
 			var prevSceneIndex:int;
 			if(_currentSceneIndex != 0){
 				prevSceneIndex = _currentSceneIndex - 1;
-				changeSceneByIndex(prevSceneIndex);
+				changeSceneByIndex(prevSceneIndex, LAST_FRAME);
 			}
 		}
 		

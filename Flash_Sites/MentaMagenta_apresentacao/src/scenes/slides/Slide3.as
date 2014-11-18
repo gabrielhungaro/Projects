@@ -4,20 +4,18 @@ package scenes.slides
 	
 	public class Slide3 extends Scene
 	{
-		//private var asset:Slide3Asset;
-		
 		public function Slide3()
 		{
 			
 		}
 		
-		override public function start():void
+		override public function start(startFrame:String):void
 		{
-			super.start();
 			asset = new Slide3Asset();
 			this.addChild(asset);
+			super.start(startFrame);
 			
-			asset.alphaContent.gotoAndStop(1);
+			//asset.alphaContent.gotoAndStop(startFrame);
 		}
 	}
 }

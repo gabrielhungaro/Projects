@@ -4,16 +4,16 @@ package scenes.slides
 	
 	public class Slide9 extends Scene
 	{
-		
 		public function Slide9()
 		{
 			
 		}
 		
-		override public function start():void
+		override public function start(startFrame:String):void
 		{
-			asset = new Slide5Asset();
-			
+			asset = new Slide9Asset();
+			this.addChild(asset);
+			super.start(startFrame);
 		}
 	}
 }
