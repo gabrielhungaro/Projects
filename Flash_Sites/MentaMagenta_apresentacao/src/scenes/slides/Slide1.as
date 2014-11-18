@@ -12,7 +12,7 @@ package scenes.slides
 		
 		private function start():void
 		{
-			asset = new Slide2Asset();
+			this.setAsset(new Slide2Asset);
 		}
 	}
 }
